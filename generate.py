@@ -1,12 +1,14 @@
 import botocore
 import boto3
+import sys
+
 s3 = boto3.resource('s3')
 buck_name = 'network-traffic'
 bucket = s3.Bucket(buck_name)
 
 exists = True
 try:
-    s3.meta.client.head_bucket(Bucket='mybucket')
+    s3.meta.client.head_bucket(Bucket=buck_name)
 except botocore.exceptions.ClientError as e:
     # If a client error is thrown, then check that it was a 404 error.
     # If it was a 404 error, then the bucket does not exist.
@@ -17,4 +19,4 @@ except botocore.exceptions.ClientError as e:
 if exists:
     print 'bucket: %s found ' % buck_name
 else:
-    print 'Error! Bucket: %s not found ' % buck_name
+    sys.exit('Error! Bucket: %s not found ' % buck_name)
