@@ -6,9 +6,9 @@ import sys
 import random
 
 if len(sys.argv) < 2:
-    sys.exit("Usage: \n\t python generate.py <duplication_factor>")
+    sys.exit("Usage: \n\t python generate.py <duplication_factor> \n")
 else:
-    dupl_factor = sys.argv[1]
+    dupl_factor = int(sys.argv[1])
 
 s3 = boto3.resource('s3')
 buck_name = 'network-traffic'
