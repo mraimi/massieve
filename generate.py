@@ -8,6 +8,7 @@ import random
 s3 = boto3.resource('s3')
 buck_name = 'network-traffic'
 bucket = s3.Bucket(buck_name)
+log = open('generation.log', 'a')
 
 exists = True
 try:
@@ -27,7 +28,12 @@ else:
 for i in xrange(1,8):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     week = 'Week' + str(i)
-    expanded_file = open(week, 'a')
+    log.write('Starting week: ' + week + '...')
+
+    try:
+    	expanded_file = open('/home/ec2-user/data/' + week, 'a')
+    except IOError:
+	sys.exit('Could not create a file to generate data to.')
 
     try:
         s3obj = s3.Object(buck_name, week)
@@ -35,15 +41,15 @@ for i in xrange(1,8):
         sys.exit('Failed to create s3 object. Check your bucket name.')
 
     for day in days:
+    	log.write('Starting day: ' + day + '...')
         dir = '/home/ec2-user/' + week + '/' + day + '/gureKddcup-matched.list'
 
         try:
             records = open(dir, 'r')
         except IOError:
-            print("file at: \n\t" + dir + "\n not found")
+            log.write("file at: \n\t" + dir + "\n not found")
             continue
         for record in records:
-            print record
             random.seed()
 
             for j in xrange(0, 5):
@@ -56,7 +62,7 @@ for i in xrange(1,8):
                         if k == 37 or k == 38:
                             spl[k] = max(0, int(spl[k])+random.randint(-1,1))
                         else:
-                            spl[k] = float(spl[k]) + float(random.randint(0, 9))/10000000.0
+                            spl[k] = float(spl[k]) + float(random.randint(0, 9))/1000000.0
                 except Exception:
                     print 'Malformed record aborted.'
                     continue
@@ -71,6 +77,6 @@ for i in xrange(1,8):
                 to_send += "\n"
                 expanded_file.write(to_send)
 
-    expanded_file.close()
-    s3obj.put(Body=open(week, 'rb'))
-    sys.exit()
+    	    expanded_file.close()
+    	    s3obj.put(Body=open('/home/ec2-user/data/' + week, 'rb'))
+            sys.exit()
