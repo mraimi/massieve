@@ -27,14 +27,21 @@ else:
 for i in xrange(1,8):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     for day in days:
-        dir = '/home/ec2-user/Week' + str(i) + '/' + day + '/gureKddcup-matched.list'
+        week = 'Week' + str(i)
+        try:
+            s3obj = s3.Object(buck_name, week + '-' + day)
+        except Exception:
+            sys.exit('Failed to create s3 object. Check your bucket name.')
+
+        dir = '/home/ec2-user/' + week + '/' + day + '/gureKddcup-matched.list'
+
         try:
             records = open(dir, 'r')
         except IOError:
             print("file at: \n\t" + dir + "\n not found")
             continue
         for record in records:
-	    print record
+            print record
             random.seed()
 
             for j in xrange(0, 5):
@@ -43,11 +50,11 @@ for i in xrange(1,8):
 
                 # Gently perturb data with small modifications
                 try:
-                    for i in xrange(30, 47):
-                        if i == 37 or i == 38:
-                            spl[i] = max(0, int(spl[i])+random.randint(-1,1))
+                    for k in xrange(30, 47):
+                        if k == 37 or k == 38:
+                            spl[k] = max(0, int(spl[k])+random.randint(-1,1))
                         else:
-                            spl[i] = float(spl[i]) + float(random.randint(0, 9))/1000000.0
+                            spl[k] = float(spl[k]) + float(random.randint(0, 9))/10000000.0
                 except Exception:
                     print 'Malformed record aborted.'
                     continue
@@ -60,5 +67,5 @@ for i in xrange(1,8):
 
                 to_send = to_send.strip()
                 to_send += "\n"
-		print to_send
+                s3obj.put(to_send)
             sys.exit()
