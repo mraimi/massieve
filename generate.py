@@ -31,5 +31,6 @@ for i in xrange(1,8):
             print("file at: \n" + dir + "\n not found")
             continue
         for record in records:
-            print record
+            spl = record.split(' ')
+            print spl
             sys.exit()
