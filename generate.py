@@ -32,21 +32,30 @@ for i in xrange(1,8):
             print("file at: \n\t" + dir + "\n not found")
             continue
         for record in records:
-            spl = record.strip().split(' ')
-            print spl
 
             random.seed()
 
-            # Gently perturb data with small modifications
-            try:
-                for i in xrange(30, 47):
-                    if i == 37 or i == 38:
-                        spl[i] = max(0, int(spl[i])+random.randint(-1,1))
-                    else:
-                        spl[i] = float(spl[i]) + float(random.randint(0, 9))/100000.0
-            except Exception:
-                print 'Malformed record aborted.'
-                continue
+            for j in xrange(0, 5):
+                spl = record.strip().split(' ')
+                to_send = ''
 
-            print spl
+                # Gently perturb data with small modifications
+                try:
+                    for i in xrange(30, 47):
+                        if i == 37 or i == 38:
+                            spl[i] = max(0, int(spl[i])+random.randint(-1,1))
+                        else:
+                            spl[i] = float(spl[i]) + float(random.randint(0, 9))/100000.0
+                except Exception:
+                    print 'Malformed record aborted.'
+                    continue
+
+                for field in spl:
+                    if isinstance(field, float):
+                        to_send += ' ' + "%.6f" % field
+                    else:
+                        to_send = to_send + ' ' + str(field)
+                to_send += "\n"
+
+                print to_send
             sys.exit()
