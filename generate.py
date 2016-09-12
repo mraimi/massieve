@@ -26,13 +26,15 @@ else:
 
 for i in xrange(1,8):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    for day in days:
-        week = 'Week' + str(i)
-        try:
-            s3obj = s3.Object(buck_name, week + '-' + day)
-        except Exception:
-            sys.exit('Failed to create s3 object. Check your bucket name.')
+    week = 'Week' + str(i)
+    expanded_file = open(week, 'a')
 
+    try:
+        s3obj = s3.Object(buck_name, week)
+    except Exception:
+        sys.exit('Failed to create s3 object. Check your bucket name.')
+
+    for day in days:
         dir = '/home/ec2-user/' + week + '/' + day + '/gureKddcup-matched.list'
 
         try:
@@ -67,5 +69,8 @@ for i in xrange(1,8):
 
                 to_send = to_send.strip()
                 to_send += "\n"
-                s3obj.put(to_send)
-            sys.exit()
+                expanded_file.write(to_send)
+
+    expanded_file.close()
+    s3obj.put(Body=open(week, 'rb'))
+    sys.exit()
