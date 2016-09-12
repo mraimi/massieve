@@ -20,3 +20,16 @@ if exists:
     print 'bucket: %s found ' % buck_name
 else:
     sys.exit('Error! Bucket: %s not found ' % buck_name)
+
+for i in xrange(1,8):
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    for day in days:
+        dir = '~/Week' + str(i) + '/' + day + '/gureKddcup-matched.list'
+        try:
+            records = open(dir, 'r')
+        except:
+            print("file at: \n" + dir + "\n not found")
+            continue
+        for record in records:
+            print record
+            sys.exit()
