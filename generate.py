@@ -24,10 +24,10 @@ else:
 for i in xrange(1,8):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     for day in days:
-        dir = '~/Week' + str(i) + '/' + day + '/gureKddcup-matched.list'
+        dir = '/home/ec2-user/Week' + str(i) + '/' + day + '/gureKddcup-matched.list'
         try:
             records = open(dir, 'r')
-        except:
+        except IOError:
             print("file at: \n" + dir + "\n not found")
             continue
         for record in records:
