@@ -39,9 +39,9 @@ for i in xrange(1,8):
 
             # Gently perturb data with small modifications
             try:
-                for i in xrange(30,47):
-                    if i == 37 or 38:
-                        spl[i] = max(0,int(spl[i])+random.randint(-1,1))
+                for i in xrange(30, 47):
+                    if i == 37 or i == 38:
+                        spl[i] = max(0, int(spl[i])+random.randint(-1,1))
                     else:
                         spl[i] = float(spl[i]) + float(random.randint(0, 9))/100000.0
             except Exception:
