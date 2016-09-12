@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import botocore
 import boto3
 import sys
@@ -32,7 +34,7 @@ for i in xrange(1,8):
             print("file at: \n\t" + dir + "\n not found")
             continue
         for record in records:
-
+	    print record
             random.seed()
 
             for j in xrange(0, 5):
@@ -45,7 +47,7 @@ for i in xrange(1,8):
                         if i == 37 or i == 38:
                             spl[i] = max(0, int(spl[i])+random.randint(-1,1))
                         else:
-                            spl[i] = float(spl[i]) + float(random.randint(0, 9))/100000.0
+                            spl[i] = float(spl[i]) + float(random.randint(0, 9))/1000000.0
                 except Exception:
                     print 'Malformed record aborted.'
                     continue
@@ -55,7 +57,8 @@ for i in xrange(1,8):
                         to_send += ' ' + "%.6f" % field
                     else:
                         to_send = to_send + ' ' + str(field)
-                to_send += "\n"
 
-                print to_send
+                to_send = to_send.strip()
+                to_send += "\n"
+		print to_send
             sys.exit()
