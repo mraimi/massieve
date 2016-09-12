@@ -4,6 +4,11 @@ import botocore
 import boto3
 import sys
 import random
+import datetime
+
+
+def log(logfile, msg):
+    logfile.write("[" + str(datetime.datetime.utcnow()) + "] " + msg)
 
 if len(sys.argv) < 2:
     sys.exit("Usage: \n\t python generate.py <duplication_factor> \n")
@@ -13,7 +18,7 @@ else:
 s3 = boto3.resource('s3')
 buck_name = 'network-traffic'
 bucket = s3.Bucket(buck_name)
-log = open('generation.log', 'a')
+lg = open('generation.log', 'a')
 
 exists = True
 try:
@@ -26,14 +31,14 @@ except botocore.exceptions.ClientError as e:
         exists = False
 
 if exists:
-    log.write('bucket: %s found ' % buck_name)
+    log(lg, 'bucket: %s found ' % buck_name + "\n")
 else:
     sys.exit('Error! Bucket: %s not found ' % buck_name)
 
 for i in xrange(1,8):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     week = 'Week' + str(i)
-    log.write('Starting week: ' + week + '...')
+    log(lg, 'Starting week: ' + week + '...' + "\n")
 
     try:
         expanded_file = open('/home/ec2-user/data/' + week, 'a')
@@ -46,13 +51,13 @@ for i in xrange(1,8):
         sys.exit('Failed to create s3 object. Check your bucket name.')
 
     for day in days:
-        log.write('Starting day: ' + day + '...')
+        log(lg, 'Starting day: ' + day + '...' + "\n")
         dir = '/home/ec2-user/' + week + '/' + day + '/gureKddcup-matched.list'
 
         try:
             records = open(dir, 'r')
         except IOError:
-            log.write("file at: \n\t" + dir + "\n not found")
+            log(lg, "file at: \n\t" + dir + "\n not found \n")
             continue
         for record in records:
             random.seed()
@@ -69,7 +74,7 @@ for i in xrange(1,8):
                         else:
                             spl[k] = float(spl[k]) + float(random.randint(0, 9))/1000000.0
                 except Exception:
-                    log.write('Malformed record aborted.')
+                    log(lg, 'Malformed record aborted.' + "\n")
                     continue
 
                 for field in spl:
@@ -81,10 +86,7 @@ for i in xrange(1,8):
                 to_send = to_send.strip()
                 to_send += "\n"
                 expanded_file.write(to_send)
-            expanded_file.close()
-            s3obj.put(Body=open('/home/ec2-user/data/' + week, 'rb'))
-            sys.exit()
-    log.write('Ending week: ' + week + '...')
+    log(lg, 'Ending week: ' + week + '...' + "\n")
     expanded_file.close()
-    s3obj.put(Body=open('/home/ec2-user/data/' + week, 'rb'))
-log.close()
+    s3obj.put(Body=open('/home/ec2-user/data/' + week, 'r'))
+lg.close()
