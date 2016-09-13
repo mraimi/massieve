@@ -62,12 +62,12 @@ try:
                 sys.exit('Could not create a file to generate data to.')
 
             log(lg, 'Starting day: ' + day + '...' + "\n")
-            dir = '/home/ec2-user/' + week + '/' + day + '/gureKddcup-matched.list'
-
+            day_path = '/home/ec2-user/' + week + '/' + day + '/gureKddcup-matched.list'
+            records = None
             try:
-                records = open(dir, 'r')
+                records = open(day_path, 'r')
             except IOError:
-                log(lg, "file at: \n\t" + dir + "\n not found \n")
+                log(lg, "file at: \n\t" + day_path + "\n not found. Skipping... \n")
                 continue
             for record in records:
                 for j in xrange(0, dupl_factor):
