@@ -10,6 +10,14 @@ import datetime
 def log(logfile, msg):
     logfile.write("[" + str(datetime.datetime.utcnow()) + "] " + msg)
 
+
+def int_check(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
 if len(sys.argv) < 3:
     sys.exit("Usage: \n\t python generate.py <duplication_factor> <orig_file> \n")
 else:
@@ -43,7 +51,7 @@ try:
     ct = 0
     curr_file = None
     s3obj = None
-    to_skip = (1, 2, 3, 6, 11, 20, 21, 22, 41)
+    to_skip = (1, 2, 3, 6, 11, 20, 21, 41)
     new_name = None
 
     for record in data:
@@ -55,6 +63,7 @@ try:
                 try:
                     s3obj = s3.Object(buck_name, new_name)
                     s3obj.put(Body=open(new_name, 'r'))
+                    sys.exit()
                 except Exception:
                     log(lg, 'Failed to create s3 object, ' + new_name + '.')
                     lg.close()
@@ -74,10 +83,11 @@ try:
             try:
                 for k in xrange(0, 42):
                     if k not in to_skip:
-                        if isinstance(spl[k], float):
-                            spl[k] = min(1, max(0, float(spl[k]) + random.randint(-1, 1) * 0.01))
-                        else:
+                        if int_check(spl[k]):
                             spl[k] = max(0, int(spl[k]) + random.randint(-1, 1) * int(spl[k]) / 10)
+                        else:
+                            spl[k] = min(1, max(0, float(spl[k]) + random.randint(-1, 1) * 0.01))
+
             except Exception:
                 log(lg, 'Malformed record aborted.' + "\n")
                 continue
