@@ -10,10 +10,11 @@ import datetime
 def log(logfile, msg):
     logfile.write("[" + str(datetime.datetime.utcnow()) + "] " + msg)
 
-if len(sys.argv) < 2:
-    sys.exit("Usage: \n\t python generate.py <duplication_factor> \n")
+if len(sys.argv) < 3:
+    sys.exit("Usage: \n\t python generate.py <duplication_factor> <orig_file> \n")
 else:
     dupl_factor = int(sys.argv[1])
+    orig_file = sys.argv[2]
 
 s3 = boto3.resource('s3')
 buck_name = 'network-traffic'
@@ -38,68 +39,56 @@ else:
     sys.exit('Error! Bucket: %s not found ' % buck_name)
 
 try:
-    for i in xrange(1,8):
-        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-        week = 'Week' + str(i)
-        log(lg, 'Starting week: ' + week + '...' + "\n")
-        random.seed()
+    data = open(orig_file, 'r')
+    ct = 0
+    curr_file = None
+    s3obj = None
+    to_skip = (1, 2, 3, 6, 11, 20, 21, 22, 41)
+    new_name = None
 
-        for day in days:
-            obj_name = week + '-' + day
-            s3obj = None
+    for record in data:
+
+        # Every 10K records create a new local file and a new S3 object
+        if ct % 10000 == 0:
+            if curr_file and new_name:
+                # flush records to s3
+                try:
+                    s3obj.put(Body=open(new_name, 'r'))
+                    s3obj = s3.Object(buck_name, new_name)
+                except Exception:
+                    log(lg, 'Failed to create s3 object, ' + new_name + '.')
+                    lg.close()
+                    sys.exit('Failed to create s3 object, ' + new_name + '.')
+
+            new_name = "/home/ec2-user/data/chunk_%d" % (ct / 10000)
+            if curr_file:
+                curr_file.close()
+            curr_file = open(new_name, 'w')
+
+        for j in xrange(0, dupl_factor):
+            ct += 1
+            spl = record.strip().split(' ')
+            to_send = ''
+
+            # Gently perturb data with small modifications
             try:
-                s3obj = s3.Object(buck_name, obj_name)
-            except Exception:
-                log(lg, 'Failed to create s3 object, ' + obj_name + '.')
-                lg.close()
-                sys.exit('Failed to create s3 object, ' + obj_name + '.')
-            expanded_file = None
-            path = '/home/ec2-user/data/' + week + '-' + day
-            try:
-                expanded_file = open(path, 'w')
-            except IOError:
-                log(lg, 'Could not create a file to generate data to.')
-                lg.close()
-                sys.exit('Could not create a file to generate data to.')
-
-            log(lg, 'Starting day: ' + day + '...' + "\n")
-            day_path = '/home/ec2-user/' + week + '/' + day + '/gureKddcup-matched.list'
-            records = None
-            try:
-                records = open(day_path, 'r')
-            except IOError:
-                log(lg, "file at: \n\t" + day_path + "\n not found. Skipping... \n")
-                continue
-            for record in records:
-                for j in xrange(0, dupl_factor):
-                    spl = record.strip().split(' ')
-                    to_send = ''
-
-                    # Gently perturb data with small modifications
-                    try:
-                        for k in xrange(30, 47):
-                            if k == 37 or k == 38:
-                                spl[k] = max(0, int(spl[k])+random.randint(-1, 1))
-                            else:
-                                spl[k] = float(spl[k]) + float(random.randint(0, 9))/1000000.0
-                    except Exception:
-                        log(lg, 'Malformed record aborted.' + "\n")
-                        continue
-
-                    for field in spl:
-                        if isinstance(field, float):
-                            to_send += ' ' + "%.6f" % field
+                for k in xrange(0, 42):
+                    if k not in to_skip:
+                        if isinstance(spl[k], float):
+                            spl[k] = min(1, max(0, float(spl[k]) + random.randint(-1, 1) * 0.01))
                         else:
-                            to_send = to_send + ' ' + str(field)
+                            spl[k] = max(0, int(spl[k]) + random.randint(-1, 1) * int(spl[k]) / 10)
+            except Exception:
+                log(lg, 'Malformed record aborted.' + "\n")
+                continue
 
-                    to_send = to_send.strip()
-                    to_send += "\n"
-                    expanded_file.write(to_send)
-            expanded_file.close()
-            log(lg, 'Ending day: ' + day + '...' + "\n")
-            s3obj.put(Body=open(path, 'r'))
-            log(lg, 'Sent ' + week + '-' + day + ' to s3.')
-        log(lg, 'Ending week: ' + week + '...' + "\n")
+            for field in spl:
+                if isinstance(field, float):
+                    to_send += ',' + "%.2f" % field
+                else:
+                    to_send = to_send + ' ' + str(field)
+
+            to_send = to_send[1:] + "\n"
 except Exception:
     log(lg, 'Exception caught at top level. Exiting.')
     lg.close()
