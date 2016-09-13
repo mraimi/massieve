@@ -63,6 +63,8 @@ try:
             if curr_file and new_name:
                 # flush records to s3
                 try:
+                    if curr_file:
+                        curr_file.close()
                     s3obj = s3.Object(buck_name, new_name)
                     s3obj.put(Body=open(new_path, 'r'))
                     sys.exit()
@@ -72,8 +74,6 @@ try:
                     sys.exit('Failed to create s3 object, ' + new_path + '.')
 
             new_path = "/home/ec2-user/data/" + new_name
-            if curr_file:
-                curr_file.close()
             curr_file = open(new_path, 'w')
 
         for j in xrange(0, dupl_factor):
