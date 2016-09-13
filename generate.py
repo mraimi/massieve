@@ -53,17 +53,17 @@ try:
             if curr_file and new_name:
                 # flush records to s3
                 try:
-                    s3obj.put(Body=open(new_name, 'r'))
                     s3obj = s3.Object(buck_name, new_name)
+                    s3obj.put(Body=open(new_name, 'r'))
                 except Exception:
                     log(lg, 'Failed to create s3 object, ' + new_name + '.')
                     lg.close()
                     sys.exit('Failed to create s3 object, ' + new_name + '.')
 
-            new_name = "/home/ec2-user/data/chunk_%d" % (ct / 10000)
-            if curr_file:
-                curr_file.close()
-            curr_file = open(new_name, 'w')
+        new_name = "/home/ec2-user/data/chunk_%d" % (ct / 10000)
+        if curr_file:
+            curr_file.close()
+        curr_file = open(new_name, 'w')
 
         for j in xrange(0, dupl_factor):
             ct += 1
