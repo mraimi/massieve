@@ -41,16 +41,18 @@ for i in xrange(1,8):
     log(lg, 'Starting week: ' + week + '...' + "\n")
 
     try:
-        expanded_file = open('/home/ec2-user/data/' + week, 'a')
-    except IOError:
-        sys.exit('Could not create a file to generate data to.')
-
-    try:
         s3obj = s3.Object(buck_name, week)
     except Exception:
         sys.exit('Failed to create s3 object. Check your bucket name.')
 
     for day in days:
+        expanded_file = None
+
+        try:
+            expanded_file = open('/home/ec2-user/data/' + week + '-' + day, 'a')
+        except IOError:
+            sys.exit('Could not create a file to generate data to.')
+
         log(lg, 'Starting day: ' + day + '...' + "\n")
         dir = '/home/ec2-user/' + week + '/' + day + '/gureKddcup-matched.list'
 
@@ -86,7 +88,8 @@ for i in xrange(1,8):
                 to_send = to_send.strip()
                 to_send += "\n"
                 expanded_file.write(to_send)
+        expanded_file.close()
+        log(lg, 'Ending day: ' + day + '...' + "\n")
+        s3obj.put(Body=open('/home/ec2-user/data/' + week + '-' + day, 'r'))
     log(lg, 'Ending week: ' + week + '...' + "\n")
-    expanded_file.close()
-    s3obj.put(Body=open('/home/ec2-user/data/' + week, 'r'))
 lg.close()
