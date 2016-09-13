@@ -58,6 +58,7 @@ try:
 
         # Every 10K records create a new local file and a new S3 object
         if ct % 10000 == 0:
+	    print ct
             if curr_file and new_name:
                 # flush records to s3
                 try:
@@ -99,6 +100,7 @@ try:
                     to_send = to_send + ' ' + str(field)
 
             to_send = to_send[1:] + "\n"
+	    print to_send
             curr_file.write(to_send)
 except Exception:
     log(lg, 'Exception caught at top level. Exiting.')
