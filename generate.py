@@ -52,28 +52,29 @@ try:
     curr_file = None
     s3obj = None
     to_skip = (1, 2, 3, 6, 11, 20, 21, 41)
-    new_name = None
+    new_path = None
 
     for record in data:
 
         # Every 10K records create a new local file and a new S3 object
         if ct % 10000 == 0:
 	    print ct
+            new_name = "chunk_%d" % (ct / 10000)
             if curr_file and new_name:
                 # flush records to s3
                 try:
                     s3obj = s3.Object(buck_name, new_name)
-                    s3obj.put(Body=open(new_name, 'r'))
+                    s3obj.put(Body=open(new_path, 'r'))
                     sys.exit()
                 except Exception:
-                    log(lg, 'Failed to create s3 object, ' + new_name + '.')
+                    log(lg, 'Failed to create s3 object, ' + new_path + '.')
                     lg.close()
-                    sys.exit('Failed to create s3 object, ' + new_name + '.')
+                    sys.exit('Failed to create s3 object, ' + new_path + '.')
 
-            new_name = "/home/ec2-user/data/chunk_%d" % (ct / 10000)
+            new_path = "/home/ec2-user/data/" + new_name
             if curr_file:
                 curr_file.close()
-            curr_file = open(new_name, 'w')
+            curr_file = open(new_path, 'w')
 
         for j in xrange(0, dupl_factor):
             ct += 1
@@ -97,7 +98,7 @@ try:
                 if isinstance(field, float):
                     to_send += ',' + "%.2f" % field
                 else:
-                    to_send = to_send + ' ' + str(field)
+                    to_send = to_send + ',' + str(field)
 
             to_send = to_send[1:] + "\n"
 	    print to_send
