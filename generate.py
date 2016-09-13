@@ -42,6 +42,7 @@ try:
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         week = 'Week' + str(i)
         log(lg, 'Starting week: ' + week + '...' + "\n")
+        random.seed()
 
         try:
             s3obj = s3.Object(buck_name, week)
@@ -52,9 +53,9 @@ try:
 
         for day in days:
             expanded_file = None
-
+            path = '/home/ec2-user/data/' + week + '-' + day
             try:
-                expanded_file = open('/home/ec2-user/data/' + week + '-' + day, 'a')
+                expanded_file = open(path, 'w')
             except IOError:
                 log(lg, 'Could not create a file to generate data to.')
                 lg.close()
@@ -69,8 +70,6 @@ try:
                 log(lg, "file at: \n\t" + dir + "\n not found \n")
                 continue
             for record in records:
-                random.seed()
-
                 for j in xrange(0, dupl_factor):
                     spl = record.strip().split(' ')
                     to_send = ''
@@ -79,7 +78,7 @@ try:
                     try:
                         for k in xrange(30, 47):
                             if k == 37 or k == 38:
-                                spl[k] = max(0, int(spl[k])+random.randint(-1,1))
+                                spl[k] = max(0, int(spl[k])+random.randint(-1, 1))
                             else:
                                 spl[k] = float(spl[k]) + float(random.randint(0, 9))/1000000.0
                     except Exception:
@@ -97,7 +96,7 @@ try:
                     expanded_file.write(to_send)
             expanded_file.close()
             log(lg, 'Ending day: ' + day + '...' + "\n")
-            s3obj.put(Body=open('/home/ec2-user/data/' + week + '-' + day, 'r'))
+            s3obj.put(Body=open(path, 'r'))
             log(lg, 'Sent ' + week + '-' + day + ' to s3.')
         log(lg, 'Ending week: ' + week + '...' + "\n")
 except Exception:
