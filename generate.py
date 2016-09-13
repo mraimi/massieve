@@ -44,14 +44,15 @@ try:
         log(lg, 'Starting week: ' + week + '...' + "\n")
         random.seed()
 
-        try:
-            s3obj = s3.Object(buck_name, week)
-        except Exception:
-            log(lg, 'Failed to create s3 object. Check your bucket name.')
-            lg.close()
-            sys.exit('Failed to create s3 object. Check your bucket name.')
-
         for day in days:
+            obj_name = week + '-' + day
+            s3obj = None
+            try:
+                s3obj = s3.Object(buck_name, obj_name)
+            except Exception:
+                log(lg, 'Failed to create s3 object, ' + obj_name + '.')
+                lg.close()
+                sys.exit('Failed to create s3 object, ' + obj_name + '.')
             expanded_file = None
             path = '/home/ec2-user/data/' + week + '-' + day
             try:
