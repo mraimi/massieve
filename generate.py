@@ -53,12 +53,15 @@ try:
     s3obj = None
     to_skip = (1, 2, 3, 6, 11, 20, 21, 41)
     new_path = None
+    inc = 0
 
     for record in data:
 
         # Every 10K records create a new local file and a new S3 object
-        if ct % 10000 == 0:
-            new_name = "chunk_%d" % (ct / 10000)
+        if ct == 20000000:
+            ct = 0
+            new_name = "chunk_%d" % inc
+            inc += 1
             if curr_file and new_name:
                 # flush records to s3
                 try:
@@ -66,7 +69,6 @@ try:
                         curr_file.close()
                     s3obj = s3.Object(buck_name, new_name)
                     s3obj.put(Body=open(new_path, 'r'))
-                    sys.exit()
                 except Exception:
                     log(lg, 'Failed to create s3 object, ' + new_path + '.')
                     lg.close()
