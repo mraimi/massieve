@@ -54,10 +54,11 @@ try:
     to_skip = (1, 2, 3, 6, 11, 20, 21, 41)
     new_path = None
     inc = 0
+    new_path = "/home/ec2-user/data/chunk_0"
+    curr_file = open(new_path, 'w')
 
     for record in data:
-
-        # Every 10K records create a new local file and a new S3 object
+        # Every 20,000,000 records create a new local file and a new S3 object
         if ct == 20000000:
             ct = 0
             new_name = "chunk_%d" % inc
