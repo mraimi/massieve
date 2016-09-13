@@ -60,14 +60,14 @@ try:
                     lg.close()
                     sys.exit('Failed to create s3 object, ' + new_name + '.')
 
-        new_name = "/home/ec2-user/data/chunk_%d" % (ct / 10000)
-        if curr_file:
-            curr_file.close()
-        curr_file = open(new_name, 'w')
+            new_name = "/home/ec2-user/data/chunk_%d" % (ct / 10000)
+            if curr_file:
+                curr_file.close()
+            curr_file = open(new_name, 'w')
 
         for j in xrange(0, dupl_factor):
             ct += 1
-            spl = record.strip().split(' ')
+            spl = record.strip().split(',')
             to_send = ''
 
             # Gently perturb data with small modifications
@@ -89,6 +89,7 @@ try:
                     to_send = to_send + ' ' + str(field)
 
             to_send = to_send[1:] + "\n"
+            curr_file.write(to_send)
 except Exception:
     log(lg, 'Exception caught at top level. Exiting.')
     lg.close()
