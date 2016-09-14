@@ -6,8 +6,9 @@ import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.SparkContext
 import org.apache.spark.sql._
+import kmeans.KMeansObj
 
-object PriceDataStreaming {
+object TrafficDataStreaming {
   def main(args: Array[String]) {
 
     val brokers = "ec2-23-22-195-205.compute-1.amazonaws.com:9092"
@@ -20,10 +21,13 @@ object PriceDataStreaming {
 
     // Create direct kafka stream with brokers and topics
     val kafkaParams = Map[String, String]("metadata.broker.list" -> brokers)
-    val messages = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
+    val msgDStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
 
-    // Get the lines and show results
-    messages.foreachRDD { rdd =>
+    // Create KMeans object
+    val kmo = new KMeansObj
+
+    // Iterate over DStream to get incoming traffic
+    msgDStream.foreachRDD { rdd =>
 
       val sqlContext = SQLContextSingleton.getInstance(rdd.sparkContext)
       import sqlContext.implicits._

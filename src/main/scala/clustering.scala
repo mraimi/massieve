@@ -4,7 +4,7 @@
  * See LICENSE file for further information.
  */
 
-package com.cloudera.datascience.kmeans
+package kmeans
 
 import org.apache.spark.mllib.clustering._
 import org.apache.spark.mllib.linalg._
@@ -12,7 +12,7 @@ import org.apache.spark.rdd._
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.SparkContext._
 
-object RunKMeans {
+object KMeansObj {
 
   def main(args: Array[String]): Unit = {
     val sc = new SparkContext(new SparkConf().setAppName("K-means"))
