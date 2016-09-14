@@ -10,7 +10,7 @@ import org.apache.spark.sql._
 object PriceDataStreaming {
   def main(args: Array[String]) {
 
-    val brokers = "ec2-52-26-67-62.us-west-2.compute.amazonaws.com:9092"
+    val brokers = "ec2-23-22-195-205.compute-1.amazonaws.com:9092"
     val topics = "price_data_part4"
     val topicsSet = topics.split(",").toSet
 
