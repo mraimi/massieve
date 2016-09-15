@@ -24,7 +24,7 @@ object TrafficDataStreaming {
     val msgDStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
 
     // Create KMeans object
-//    val kmo = new KMeansObj
+    //    val kmo = new KMeansObj
 
     // Iterate over DStream to get incoming traffic
     msgDStream.foreachRDD { rdd =>
@@ -33,9 +33,18 @@ object TrafficDataStreaming {
       import sqlContext.implicits._
 
       val lines = rdd.map(_._2)
+
       val ticksDF = lines.map( x => {
-        val tokens = x.split(";")
-        Tick(tokens(0))}).toDF()
+        val tuples = sub_sample.map(line => {
+          val spl = line.split(',')
+          val len = spl.length
+          val buf = spl.toBuffer
+          buf.remove(1)
+          buf.remove(1)
+          buf.remove(1)
+          buf.toArray.mkString(","))
+        })
+        Tick(tuples)}).toDF()
 
       ticksDF.show()
     }
