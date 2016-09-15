@@ -6,7 +6,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.SparkContext
 import org.apache.spark.sql._
-import kmeans.KMeansObj
+//import kmeans.KMeansObj
 
 object TrafficDataStreaming {
   def main(args: Array[String]) {
@@ -24,7 +24,7 @@ object TrafficDataStreaming {
     val msgDStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
 
     // Create KMeans object
-    val kmo = new KMeansObj
+//    val kmo = new KMeansObj
 
     // Iterate over DStream to get incoming traffic
     msgDStream.foreachRDD { rdd =>

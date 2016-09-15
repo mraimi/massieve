@@ -16,14 +16,14 @@
  */
 
 // scalastyle:off println
-package org.apache.spark.examples.mllib
-
-import org.apache.spark.SparkConf
-// $example on$
-import org.apache.spark.mllib.clustering.StreamingKMeans
-import org.apache.spark.mllib.linalg.Vectors
-import org.apache.spark.mllib.regression.LabeledPoint
-import org.apache.spark.streaming.{Seconds, StreamingContext}
+//package org.apache.spark.examples.mllib
+//
+//import org.apache.spark.SparkConf
+//// $example on$
+//import org.apache.spark.mllib.clustering.StreamingKMeans
+//import org.apache.spark.mllib.linalg.Vectors
+//import org.apache.spark.mllib.regression.LabeledPoint
+//import org.apache.spark.streaming.{Seconds, StreamingContext}
 // $example off$
 
 /**
