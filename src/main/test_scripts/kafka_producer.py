@@ -10,21 +10,20 @@ class Producer(object):
     def __init__(self, addr):
         self.client = SimpleClient(addr)
         self.producer = KeyedProducer(self.client)
+        self.data_file = open('../data/kddcup.testdata.unlabeled', 'r')
+        self.mem_data = []
+        for record in self.data_file:
+            self.mem_data.append(record)
 
     def produce_msgs(self, source_symbol):
-        price_field = random.randint(800,1400)
+        random.seed()
         msg_cnt = 0
         while True:
-            time_field = datetime.now().strftime("%Y%m%d %H%M%S")
-            price_field += random.randint(-10, 10)/10.0
-            volume_field = random.randint(1, 1000)
-            str_fmt = "{};{};{};{}"
-            message_info = str_fmt.format(source_symbol,
-                                          time_field,
-                                          price_field,
-                                          volume_field)
+            idx = random.randint(0, len(self.mem_data) - 1)
+            str_fmt = "{}"
+            message_info = str_fmt.format(self.mem_data[idx])
             print message_info
-            self.producer.send_messages('price_data_part4', source_symbol, message_info)
+            self.producer.send_messages('traffic_data', source_symbol, message_info)
             msg_cnt += 1
 
 if __name__ == "__main__":

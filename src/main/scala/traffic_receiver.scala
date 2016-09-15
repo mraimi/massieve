@@ -16,7 +16,7 @@ object TrafficDataStreaming {
     val topicsSet = topics.split(",").toSet
 
     // Create context with 2 second batch interval
-    val sparkConf = new SparkConf().setAppName("price_data")
+    val sparkConf = new SparkConf().setAppName("traffic_data")
     val ssc = new StreamingContext(sparkConf, Seconds(2))
 
     // Create direct kafka stream with brokers and topics

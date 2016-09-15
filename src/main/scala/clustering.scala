@@ -275,6 +275,7 @@ object KMeansObj {
     kmeans.setK(150)
     kmeans.setRuns(10)
     kmeans.setEpsilon(1.0e-6)
+
     val model = kmeans.run(normalizedData)
 
     normalizedData.unpersist()
