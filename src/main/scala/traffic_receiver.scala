@@ -37,7 +37,7 @@ object TrafficDataStreaming {
         val tokens = x.split(";")
         Tick(tokens(0))}).toDF()
 
-      ticks_DF.show()
+      ticksDF.show()
     }
 
     // Start the computation
