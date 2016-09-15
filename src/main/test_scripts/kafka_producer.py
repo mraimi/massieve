@@ -21,9 +21,9 @@ class Producer(object):
         while True:
             idx = random.randint(0, len(self.mem_data) - 1)
             str_fmt = "{}"
-            message_info = str_fmt.format(self.mem_data[idx])
-            print message_info
-            self.producer.send_messages('traffic_data', source_symbol, message_info)
+            message_content = str_fmt.format(self.mem_data[idx])
+            print message_content
+            self.producer.send_messages('traffic_data', source_symbol, message_content)
             msg_cnt += 1
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ object TrafficDataStreaming {
   def main(args: Array[String]) {
 
     val brokers = "ec2-23-22-195-205.compute-1.amazonaws.com:9092"
-    val topics = "price_data_part4"
+    val topics = "traffic_data"
     val topicsSet = topics.split(",").toSet
 
     // Create context with 2 second batch interval
@@ -35,12 +35,9 @@ object TrafficDataStreaming {
       val lines = rdd.map(_._2)
       val ticksDF = lines.map( x => {
         val tokens = x.split(";")
-        Tick(tokens(0), tokens(2).toDouble, tokens(3).toInt)}).toDF()
-      val ticks_per_source_DF = ticksDF.groupBy("source")
-        .agg("price" -> "avg", "volume" -> "sum")
-        .orderBy("source")
+        Tick(tokens(0))}).toDF()
 
-      ticks_per_source_DF.show()
+      ticks_DF.show()
     }
 
     // Start the computation
@@ -49,7 +46,7 @@ object TrafficDataStreaming {
   }
 }
 
-case class Tick(source: String, price: Double, volume: Int)
+case class Tick(content: String)
 
 /** Lazily instantiated singleton instance of SQLContext */
 object SQLContextSingleton {
