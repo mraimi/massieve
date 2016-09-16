@@ -18,7 +18,7 @@ class Producer(object):
     def produce_msgs(self, source_symbol):
         random.seed()
         msg_cnt = 0
-        while msg_cnt < 100:
+        while msg_cnt < 100000:
             idx = random.randint(0, len(self.mem_data) - 1)
             str_fmt = "{}"
             message_content = str_fmt.format(self.mem_data[idx])
