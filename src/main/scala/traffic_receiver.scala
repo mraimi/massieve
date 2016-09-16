@@ -35,15 +35,13 @@ object TrafficDataStreaming {
       val lines = rdd.map(_._2)
 
       val ticksDF = lines.map( x => {
-          val spl = x.split(',')
-          val len = spl.length
-          val buf = spl.toBuffer
-          buf.remove(1)
-          buf.remove(1)
-          buf.remove(1)
-          List("[", buf.toArray.mkString(","), "]").mkString("")
-        })
-        Tick(record)}).toDF()
+        val spl = x.split(',')
+        val len = spl.length
+        val buf = spl.toBuffer
+        buf.remove(1)
+        buf.remove(1)
+        buf.remove(1)
+        Tick(List("[", buf.toArray.mkString(","), "]").mkString(""))}).toDF()
 
       ticksDF.show()
     }
