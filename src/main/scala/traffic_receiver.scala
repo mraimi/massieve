@@ -35,21 +35,17 @@ object TrafficDataStreaming {
 
       val lines = rdd.map(_._2)
 
-      val ticksDF = lines.map( x => {
+      val xform = lines.map( x => {
         val spl = x.split(',')
         val len = spl.length
         val buf = spl.toBuffer
         buf.remove(1)
         buf.remove(1)
         buf.remove(1)
-        Tick(List("[", buf.toArray.mkString(","), "]").mkString(""))}).toDF()
+        List("[", buf.toArray.mkString(","), "]").mkString(""))
+      }
 
-      val pw = new PrintWriter(new File("count.txt" ))
-      pw.write(ticksDF.rdd.count.toString())
-      pw.close
-
-      ticksDF.show()
-      ticksDF.rdd.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
+      xform.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
     }
 
     // Start the computation
