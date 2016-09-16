@@ -44,7 +44,7 @@ object TrafficDataStreaming {
         Tick(List("[", buf.toArray.mkString(","), "]").mkString(""))}).toDF()
 
       ticksDF.show()
-      ticksDF.rdd.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
+      ticksDF.rdd.collect.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
     }
 
     // Start the computation
