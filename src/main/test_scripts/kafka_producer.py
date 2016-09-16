@@ -10,7 +10,7 @@ class Producer(object):
     def __init__(self, addr):
         self.client = SimpleClient(addr)
         self.producer = KeyedProducer(self.client)
-        self.data_file = open('../test/kddcup.testdata.unlabeled', 'r')
+        self.data_file = open('~/opt/realtimeAnomalies/src/maingitgigas/test/kddcup.testdata.unlabeled', 'r')
         self.mem_data = []
         for record in self.data_file:
             self.mem_data.append(record)
