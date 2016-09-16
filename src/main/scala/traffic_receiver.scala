@@ -41,7 +41,7 @@ object TrafficDataStreaming {
         buf.remove(1)
         buf.remove(1)
         buf.remove(1)
-        Tick(List("[", buf.toArray.mkString(","), "]").mkString(""))}).toRdd()
+        Tick(List("[", buf.toArray.mkString(","), "]").mkString(""))})
 
       ticksRdd.show()
       ticksRdd.saveAsTextFile(List(rdd.id.toString, ".train").mkstring(""))
