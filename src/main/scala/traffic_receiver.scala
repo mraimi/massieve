@@ -30,9 +30,6 @@ object TrafficDataStreaming {
     // Iterate over DStream to get incoming traffic
     msgDStream.foreachRDD { rdd =>
 
-      val sqlContext = SQLContextSingleton.getInstance(rdd.sparkContext)
-      import sqlContext.implicits._
-
       val lines = rdd.map(_._2)
 
       val xform = lines.map( x => {
@@ -49,6 +46,7 @@ object TrafficDataStreaming {
         System.exit(1)
       }
 
+      lines.saveAsTextFile(List(rdd.id.toString, ".lines").mkString(""))
       xform.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
     }
 
