@@ -43,7 +43,7 @@ object TrafficDataStreaming {
         buf.remove(1)
         buf.remove(1)
         List("[", buf.toArray.mkString(","), "]").mkString(""))
-      }
+      })
 
       xform.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
     }
