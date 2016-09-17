@@ -39,15 +39,11 @@ object TrafficDataStreaming {
         buf.remove(1)
         buf.remove(1)
         buf.remove(1)
-        List("[", buf.toArray.mkString(","), "]").mkString("")
+        Tick(List("[", buf.toArray.mkString(","), "]").mkString("")).toDF()
       })
 
-      if (xform.count == 0) {
-        System.exit(1)
-      }
-
-      lines.saveAsTextFile(List(rdd.id.toString, ".lines").mkString(""))
-      xform.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
+      xform.show()
+//      xform.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
     }
 
     // Start the computation
