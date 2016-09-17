@@ -45,7 +45,7 @@ object TrafficDataStreaming {
         Tick(List("[", buf.toArray.mkString(","), "]").mkString(""))
       }).toDF()
 
-      xform.show()
+//      xform.show()
 //      xform.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
     }
 
