@@ -34,7 +34,7 @@ object TrafficDataStreaming {
       import sqlContext.implicits._
 
       val lines = rdd.map(_._2)
-      
+
       val xform = lines.map( x => {
         val spl = x.split(',')
         val len = spl.length
@@ -42,8 +42,8 @@ object TrafficDataStreaming {
         buf.remove(1)
         buf.remove(1)
         buf.remove(1)
-        Tick(List("[", buf.toArray.mkString(","), "]").mkString("")).toDF()
-      })
+        Tick(List("[", buf.toArray.mkString(","), "]").mkString(""))
+      }).toDF()
 
       xform.show()
 //      xform.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
