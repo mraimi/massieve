@@ -45,6 +45,10 @@ object TrafficDataStreaming {
         List("[", buf.toArray.mkString(","), "]").mkString("")
       })
 
+      if (xform.count == 0) {
+        System.exit(1)
+      }
+
       xform.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
     }
 
