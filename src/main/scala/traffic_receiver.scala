@@ -50,7 +50,7 @@ object TrafficDataStreaming {
       val r = xform.rdd
 
       if (r.count > 0) {
-        xform.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
+        r.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
       }
     }
 
