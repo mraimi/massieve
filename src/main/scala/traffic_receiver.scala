@@ -45,8 +45,11 @@ object TrafficDataStreaming {
         Tick(List("[", buf.toArray.mkString(","), "]").mkString(""))
       }).toDF()
 
-//      xform.show()
-//      xform.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
+      xform.show()
+      
+      if (xform.count) {
+        xform.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
+      }
     }
 
     // Start the computation
