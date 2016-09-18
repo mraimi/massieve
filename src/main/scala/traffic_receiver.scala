@@ -46,8 +46,8 @@ object TrafficDataStreaming {
       }).toDF()
 
       xform.show()
-      
-      if (xform.count) {
+
+      if (xform.length) {
         xform.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
       }
     }
