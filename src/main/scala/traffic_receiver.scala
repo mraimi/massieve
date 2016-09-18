@@ -47,7 +47,9 @@ object TrafficDataStreaming {
 
       xform.show()
 
-      if (xform.length) {
+      val r = xform.rdd
+
+      if (r.length) {
         xform.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
       }
     }
