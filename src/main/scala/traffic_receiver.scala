@@ -28,31 +28,33 @@ object TrafficDataStreaming {
     //    val kmo = new KMeansObj
 
     // Iterate over DStream to get incoming traffic
-    msgDStream.foreachRDD { rdd =>
+//    new dStream = msgDStream.transform { rdd =>
+//
+//      val sqlContext = SQLContextSingleton.getInstance(rdd.sparkContext)
+//      import sqlContext.implicits._
+//
+//      val lines = rdd.map(_._2)
+//
+//      val xform = lines.map( x => {
+//        val spl = x.split(',')
+//        val len = spl.length
+//        val buf = spl.toBuffer
+//        buf.remove(1)
+//        buf.remove(1)
+//        buf.remove(1)
+//        List("[", buf.toArray.mkString(","), "]").mkString("")
+//      })
+//      xform.show()
+//
+//      val r = xform.rdd
+//
+//      if (r.count > 0) {
+//        r.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
+//      }
+//
+//    }
 
-      val sqlContext = SQLContextSingleton.getInstance(rdd.sparkContext)
-      import sqlContext.implicits._
-
-      val lines = rdd.map(_._2)
-
-      val xform = lines.map( x => {
-        val spl = x.split(',')
-        val len = spl.length
-        val buf = spl.toBuffer
-        buf.remove(1)
-        buf.remove(1)
-        buf.remove(1)
-        Tick(List("[", buf.toArray.mkString(","), "]").mkString(""))
-      }).toDF()
-
-      xform.show()
-
-      val r = xform.rdd
-
-      if (r.count > 0) {
-        r.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
-      }
-    }
+    msgDStream.saveAsTextFiles("test")
 
     // Start the computation
     ssc.start()
