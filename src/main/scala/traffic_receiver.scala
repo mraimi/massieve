@@ -25,27 +25,27 @@ object TrafficDataStreaming {
 //    val inputDStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
     val inputDStream = ssc.textFileStream("/home/ubuntu/opt/realtimeAnomalies/src/main/test/kddcup.testdata.unlabeled")
     // Iterate over DStream to get incoming traffic
-    val xformDStream = inputDStream.transform( lines => {
+//    val xformDStream = inputDStream.transform( lines => {
 
 //      val lines = rdd.map(_._2)
-      lines.map( rec => {
-        val spl = rec.split(',')
-        val len = spl.length
-        val buf = spl.toBuffer
-        buf.remove(1)
-        buf.remove(1)
-        buf.remove(1)
-        Tick(List("[", buf.toArray.mkString(","), "]").mkString(""))
-      })
-    })
+//      lines.map( rec => {
+//        val spl = rec.split(',')
+//        val len = spl.length
+//        val buf = spl.toBuffer
+//        buf.remove(1)
+//        buf.remove(1)
+//        buf.remove(1)
+//        Tick(List("[", buf.toArray.mkString(","), "]").mkString(""))
+//      })
+//    })
 
-    xformDStream.print()
+    inputDStream.print()
 
-    xformDStream.foreachRDD(rdd => {
-      rdd.repartition(1)
-      if(!rdd.isEmpty)
-        rdd.saveAsTextFile(List(rdd.id, ".test").mkString(""))
-    })
+//    xformDStream.foreachRDD(rdd => {
+//      rdd.repartition(1)
+//      if(!rdd.isEmpty)
+//        rdd.saveAsTextFile(List(rdd.id, ".test").mkString(""))
+//    })
 //    xformDStream.saveAsTextFiles("test")
 
     // Start the computation
