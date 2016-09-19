@@ -16,8 +16,7 @@
  */
 
 // scalastyle:off println
-//package org.apache.spark.examples.mllib
-//
+
 //import org.apache.spark.SparkConf
 //// $example on$
 //import org.apache.spark.mllib.clustering.StreamingKMeans
@@ -66,7 +65,7 @@
 //
 //    val trainingData = ssc.textFileStream(args(0)).map(Vectors.parse)
 //
-//    // Get training data into appropriate formpw
+//    // Get training data into appropriate form
 //
 //    val testData = ssc.textFileStream(args(1)).map(LabeledPoint.parse)
 //
