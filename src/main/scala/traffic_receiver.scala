@@ -35,7 +35,7 @@ object TrafficDataStreaming {
         buf.remove(1)
         buf.remove(1)
         buf.remove(1)
-        List("[", buf.toArray.mkString(","), "]").mkString("")
+        Tick(List("[", buf.toArray.mkString(","), "]").mkString(""))
       })
     })
 
