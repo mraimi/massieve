@@ -40,7 +40,7 @@ object TrafficDataStreaming {
       })
     )}
 
-    xformDStream.show()
+    xformDStream.print()
     xformDStream.saveAsTextFiles("test")
 
     // Start the computation
