@@ -23,7 +23,7 @@ object TrafficDataStreaming {
     // Create direct kafka stream with brokers and topics
     val kafkaParams = Map[String, String]("metadata.broker.list" -> brokers)
 //    val inputDStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
-    val inputDStream = ssc.textFileStream("/home/ubuntu/opt/realtimeAnomalies/src/main/test/kddcup.testdata.unlabeled")
+    val inputDStream = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/data/kddcup.testdata.unlabeled")
     // Iterate over DStream to get incoming traffic
 //    val xformDStream = inputDStream.transform( lines => {
 
