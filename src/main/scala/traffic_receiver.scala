@@ -35,17 +35,15 @@ object TrafficDataStreaming {
         buf.remove(1)
         buf.remove(1)
         buf.remove(1)
-        Tick(List("[", buf.toArray.mkString(","), "]").mkString(""))
+        buf.toArray.mkString(",")
       })
-
-      lines.print()
     })
 
-//    inputDStream.foreachRDD(rdd => {
-//      rdd.repartition(1)
-//      if(!rdd.isEmpty)
-//        rdd.saveAsTextFile(List(rdd.id, ".test").mkString(""))
-//    })
+    xformDStream.foreachRDD(rdd => {
+      rdd.repartition(1)
+      if(!rdd.isEmpty)
+        rdd.saveAsTextFile(List(rdd.id, ".test").mkString(""))
+    })
 //    xformDStream.saveAsTextFiles("test")
 
     // Start the computation
