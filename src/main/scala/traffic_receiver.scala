@@ -28,7 +28,7 @@ object TrafficDataStreaming {
     val xformDStream = inputDStream.transform( rdd => {
 
       val lines = rdd.map(_._2)
-      val xform = lines.map( rec => {
+      lines.map( rec => {
         val spl = rec.split(',')
         val len = spl.length
         val buf = spl.toBuffer
