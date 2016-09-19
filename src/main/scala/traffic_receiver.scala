@@ -22,8 +22,8 @@ object TrafficDataStreaming {
 
     // Create direct kafka stream with brokers and topics
     val kafkaParams = Map[String, String]("metadata.broker.list" -> brokers)
-    KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet).map(_._2).repartition(1).saveAsTextFiles("test")
-//    val inputDStream = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/data")
+//    KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet).map(_._2).repartition(1).saveAsTextFiles("test")
+    val inputDStream = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/data")
     // Iterate over DStream to get incoming traffic
 //    val xformDStream = inputDStream.transform( lines => {
 
@@ -40,11 +40,11 @@ object TrafficDataStreaming {
 //    })
 
 
-//    xformDStream.foreachRDD(rdd => {
-//      rdd.repartition(1)
-//      if(!rdd.isEmpty)
-//        rdd.saveAsTextFile(List(rdd.id, ".test").mkString(""))
-//    })
+    inputDStream.foreachRDD(rdd => {
+      rdd.repartition(1)
+      if(!rdd.isEmpty)
+        rdd.saveAsTextFile(List(rdd.id, ".test").mkString(""))
+    })
 //    xformDStream.saveAsTextFiles("test")
 
     // Start the computation
