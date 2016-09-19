@@ -39,7 +39,6 @@ object TrafficDataStreaming {
 //      })
 //    })
 
-    inputDStream.print()
 
 //    xformDStream.foreachRDD(rdd => {
 //      rdd.repartition(1)
@@ -50,6 +49,7 @@ object TrafficDataStreaming {
 
     // Start the computation
     ssc.start()
+    inputDStream.print()
     ssc.awaitTermination()
   }
 }
