@@ -25,7 +25,7 @@ object TrafficDataStreaming {
     val inputDStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
 
     // Iterate over DStream to get incoming traffic
-    val xformDStream = inputDStream.map( rdd => {
+    val xformDStream = inputDStream.foreachRDD( rdd => {
 
       val lines = rdd.map(_._2)
       lines.map( rec => {
