@@ -25,7 +25,7 @@ object TrafficDataStreaming {
     val inputDStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
 
     // Iterate over DStream to get incoming traffic
-    val xformDStream = inputDStream.transform( rdd => {
+    val xformDStream = inputDStream.map( rdd => {
 
       val lines = rdd.map(_._2)
       lines.map( rec => {
@@ -40,7 +40,13 @@ object TrafficDataStreaming {
     })
 
     xformDStream.print()
-    xformDStream.saveAsTextFiles("test")
+
+    xformDStream.foreachRDD(rdd => {
+      rdd.repartition(1)
+      if(!rdd.isEmpty)
+        rdd.saveAsTextFile(List(rdd.id, ".test").mkString(""))
+    })
+//    xformDStream.saveAsTextFiles("test")
 
     // Start the computation
     ssc.start()
