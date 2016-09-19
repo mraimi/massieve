@@ -37,9 +37,6 @@ object TrafficDataStreaming {
         buf.remove(1)
         List("[", buf.toArray.mkString(","), "]").mkString("")
       })
-
-      xform.rdd
-
     })
 
     xformDStream.print()
