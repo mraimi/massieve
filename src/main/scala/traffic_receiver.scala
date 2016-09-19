@@ -25,19 +25,17 @@ object TrafficDataStreaming {
     val inputDStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
 
     // Iterate over DStream to get incoming traffic
-    val xformDStream = inputDStream.map( rdd => {
+    val xformDStream = inputDStream.transform( rdd => {
 
-//      val lines = rdd.map(_._2)
-
-      val xform = rdd.map(x => {
-        val rec = x._2
+      val lines = rdd.map(_._2)
+      val xform = lines.map( rec => {
         val spl = rec.split(',')
         val len = spl.length
         val buf = spl.toBuffer
         buf.remove(1)
         buf.remove(1)
         buf.remove(1)
-//        List("[", buf.toArray.mkString(","), "]").mkString("")
+        List("[", buf.toArray.mkString(","), "]").mkString("")
       })
 
       xform.rdd
