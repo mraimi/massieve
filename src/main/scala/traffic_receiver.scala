@@ -26,9 +26,9 @@ object TrafficDataStreaming {
     val inputDStream = ssc.textFileStream("/home/user/ubuntu/opt/realtimeAnomalies/src/main/test/kddcup.testdata.unlabeled")
 
     // Iterate over DStream to get incoming traffic
-    val xformDStream = inputDStream.transform( rdd => {
+    val xformDStream = inputDStream.transform( lines => {
 
-      val lines = rdd.map(_._2)
+//      val lines = rdd.map(_._2)
       lines.map( rec => {
         val spl = rec.split(',')
         val len = spl.length
