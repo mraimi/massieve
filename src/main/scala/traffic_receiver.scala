@@ -21,7 +21,7 @@ object TrafficDataStreaming {
 
     // Create direct kafka stream with brokers and topics
     val kafkaParams = Map[String, String]("metadata.broker.list" -> brokers)
-    KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet).map(_._2)
+    val inputDStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
 
     // Iterate over DStream to get incoming traffic
     inputDStream.foreachRDD( rdd => {
@@ -37,7 +37,7 @@ object TrafficDataStreaming {
         buf.toArray.mkString(",")
       })
 
-      lines.saveAsTextFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/", lines.id).mkString(""))
+      lines.saveAsTextFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/test", lines.id).mkString(""))
 
     })
 
