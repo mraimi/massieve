@@ -40,15 +40,15 @@ object TrafficDataStreaming {
 //    })
 
 
-    inputDStream.foreachRDD(rdd => {
-      rdd.repartition(1)
-      if(!rdd.isEmpty)
-        rdd.saveAsTextFile(List(rdd.id, ".test").mkString(""))
-    })
+//    inputDStream.foreachRDD(rdd => {
+//      rdd.repartition(1)
+//      if(!rdd.isEmpty)
+//        rdd.saveAsTextFile(List(rdd.id, ".test").mkString(""))
+//    })
 //    xformDStream.saveAsTextFiles("test")
 
     // Start the computation
-//    inputDStream.print()
+    inputDStream.print(5)
 
     ssc.start()
     ssc.awaitTermination()
