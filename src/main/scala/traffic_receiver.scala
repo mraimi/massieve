@@ -27,17 +27,21 @@ object TrafficDataStreaming {
     // Iterate over DStream to get incoming traffic
     val xformDStream = inputDStream.map( rdd => {
 
-      val lines = rdd.map(_._2)
+//      val lines = rdd.map(_._2)
 
-      val xform = lines.map(x => {
-        val spl = x.split(',')
+      val xform = rdd.map(x => {
+        val rec = x._2
+        val spl = rec.split(',')
         val len = spl.length
         val buf = spl.toBuffer
         buf.remove(1)
         buf.remove(1)
         buf.remove(1)
-        List("[", buf.toArray.mkString(","), "]").mkString("")
+//        List("[", buf.toArray.mkString(","), "]").mkString("")
       })
+
+      xform.rdd
+
     })
 
     xformDStream.print()
