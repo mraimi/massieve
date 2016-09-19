@@ -22,39 +22,26 @@ object TrafficDataStreaming {
 
     // Create direct kafka stream with brokers and topics
     val kafkaParams = Map[String, String]("metadata.broker.list" -> brokers)
-    val msgDStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
-
-    // Create KMeans object
-    //    val kmo = new KMeansObj
+    val inputDStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
 
     // Iterate over DStream to get incoming traffic
-//    new dStream = msgDStream.transform { rdd =>
-//
-//      val sqlContext = SQLContextSingleton.getInstance(rdd.sparkContext)
-//      import sqlContext.implicits._
-//
-//      val lines = rdd.map(_._2)
-//
-//      val xform = lines.map( x => {
-//        val spl = x.split(',')
-//        val len = spl.length
-//        val buf = spl.toBuffer
-//        buf.remove(1)
-//        buf.remove(1)
-//        buf.remove(1)
-//        List("[", buf.toArray.mkString(","), "]").mkString("")
-//      })
-//      xform.show()
-//
-//      val r = xform.rdd
-//
-//      if (r.count > 0) {
-//        r.saveAsTextFile(List(rdd.id.toString, ".train").mkString(""))
-//      }
-//
-//    }
+    val xformDStream = msgDStream.map( rdd => {
 
-    msgDStream.saveAsTextFiles("test")
+      val lines = rdd.map(_._2)
+
+      val xform = lines.map(x => {
+        val spl = x.split(',')
+        val len = spl.length
+        val buf = spl.toBuffer
+        buf.remove(1)
+        buf.remove(1)
+        buf.remove(1)
+        List("[", buf.toArray.mkString(","), "]").mkString("")
+      })
+    )}
+
+    xformDStream.show()
+    xformDStream.saveAsTextFiles("test")
 
     // Start the computation
     ssc.start()
