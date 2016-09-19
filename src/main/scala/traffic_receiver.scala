@@ -40,7 +40,7 @@ object TrafficDataStreaming {
     })
 
     xformDStream.print()
-    xformDStream.saveAsTextFiles("test")
+    xformDStream.saveAsHadoopFiles("test")
 
     // Start the computation
     ssc.start()
