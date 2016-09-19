@@ -39,11 +39,12 @@ object TrafficDataStreaming {
       })
     })
 
-    foreachRDD(rdd => {
-      rdd.repartition(1)
-      if(!rdd.isEmpty)
-        rdd.saveAsTextFile(List(rdd.id, ".test").mkString(""))
-    })
+    lines.saveAsTextFile("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/data_out")
+//    lines.foreachRDD(rdd => {
+//      rdd.repartition(1)
+//      if(!rdd.isEmpty)
+//        rdd.saveAsTextFile(List(rdd.id, ".test").mkString(""))
+//    })
 //    xformDStream.saveAsTextFiles("test")
 
     // Start the computation
