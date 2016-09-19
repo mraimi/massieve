@@ -25,9 +25,9 @@ object TrafficDataStreaming {
 //    KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet).map(_._2).repartition(1).saveAsTextFiles("test")
     val inputDStream = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/data")
     // Iterate over DStream to get incoming traffic
-    val xformDStream = inputDStream.foreachRDD( rdd => {
+    val xformDStream = inputDStream.foreachRDD( lines => {
 
-      val lines = rdd.map(_._2)
+//      val lines = rdd.map(_._2)
       lines.map( rec => {
         val spl = rec.split(',')
         val len = spl.length
