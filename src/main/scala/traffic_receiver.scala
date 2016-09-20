@@ -7,6 +7,10 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.SparkContext
 import org.apache.spark.sql._
 import java.io._
+import org.apache.spark.mllib.clustering.StreamingKMeans
+import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.regression.LabeledPoint
+import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 object TrafficDataStreaming {
   def main(args: Array[String]) {
@@ -37,27 +41,26 @@ object TrafficDataStreaming {
         buf.toArray.mkString(",")
       })
 
-      lines.saveAsTextFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/test", lines.id).mkString(""))
+      lines.saveAsTextFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/test/data-", lines.id).mkString(""))
 
     })
 
+    /**
+      * KMeans code follows
+      */
+
+    val trainingData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/train/").map(Vectors.parse)
+    val testData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/test/").map(LabeledPoint.parse)
+
+    val model = new StreamingKMeans()
+      .setK(100)
+      .setDecayFactor(0.0)
+      .setRandomCenters(38)
+
+    model.trainOn(trainingData)
+    model.predictOnValues(testData.map(lp => (lp.label, lp.features))).print()
 
     ssc.start()
     ssc.awaitTermination()
-  }
-}
-
-case class Tick(content: String)
-
-/** Lazily instantiated singleton instance of SQLContext */
-object SQLContextSingleton {
-
-  @transient  private var instance: SQLContext = _
-
-  def getInstance(sparkContext: SparkContext): SQLContext = {
-    if (instance == null) {
-      instance = new SQLContext(sparkContext)
-    }
-    instance
   }
 }
