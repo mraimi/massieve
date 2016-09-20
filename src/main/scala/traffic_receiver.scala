@@ -35,9 +35,7 @@ object TrafficDataStreaming {
         val spl = rec.split(',')
         val len = spl.length
         val buf = spl.toBuffer
-        buf.remove(1)
-        buf.remove(1)
-        buf.remove(1)
+        buf.remove(1, 3)
         buf.toArray.mkString(",")
       })
 
