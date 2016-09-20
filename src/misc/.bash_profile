@@ -7,4 +7,5 @@ alias kafka-restore='/usr/local/kafka/bin/kafka-topics.sh --zookeeper localhost:
 alias hdfs='/usr/local/hadoop/bin/hdfs'
 alias spark-shell='/usr/local/spark/bin/spark-shell  --master spark://ip-172-31-0-6:7077 --jars target/scala-2.10/price_data-assembly-1.0.jar target/scala-2.10/price_data_2.10-1.0.jar'
 alias test-data-url='hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/data/kddcup.testdata.unlabeled'
-alias start-clustering='<trainingDir> <testDir> <batchDuration> <numClusters> <numDimensions>'
+alias start-clustering='/usr/local/spark/bin/spark-submit --class TrafficDataStreaming --master spark://ip-172-31-0-6:7077 --jars target/scala-2.10/price_data-assembly-1.0.jar target/scala-2.10/price_data_2.10-1.0.jar'
+export hdfs_root='hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/'

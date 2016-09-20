@@ -31,6 +31,8 @@ object TrafficDataStreaming {
     inputDStream.foreachRDD( rdd => {
 
       val lines = rdd.map(_._2)
+
+      // TODO: update to remove last label, vectorize before dumping
       lines.map( rec => {
         val spl = rec.split(',')
         val len = spl.length

@@ -15,7 +15,8 @@ labelsAndData.saveAsTextFile("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9
 val numericData = rawData.map(line => {
   val buffer = line.split(',').toBuffer
   buffer.remove(1,3)
+  buffer.remove(buffer.length-1)
   Vectors.dense(buffer.map(_.toDouble).toArray)
 })
 
-labelsAndData.saveAsTextFile("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/data/unlabeled_full_numeric")
+numericData.saveAsTextFile("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/data/unlabeled_full_numeric")

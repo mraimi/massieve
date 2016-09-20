@@ -4,18 +4,12 @@ import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
-val ssc = new StreamingContext(sc, Seconds(30))
-val trainingData = ssc.textFileStream(args(0)).map(Vectors.parse)
+val ssc = new StreamingContext(sc, Seconds(5))
 
-// Get training data into appropriate form
+val trainingData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/data/unlabeled_full_numeric").map(Vectors.parse)
+val testData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/data/test/labeled_full_numeric").map(LabeledPoint.parse)
 
-val testData = ssc.textFileStream(args(1)).map(LabeledPoint.parse)
-
-val model = new StreamingKMeans()
-  .setK(100)
-  .setDecayFactor(0)
-  .setRandomCenters(38, 0.0)
-  .trainOn
+val model = new StreamingKMeans().setK(100).setDecayFactor(0).setRandomCenters(38, 0.0)
 
 model.trainOn(trainingData)
 model.predictOnValues(testData.map(lp => (lp.label, lp.features))).print()
