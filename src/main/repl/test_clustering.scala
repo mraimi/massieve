@@ -12,7 +12,12 @@ val testData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.
 val model = new StreamingKMeans().setK(100).setDecayFactor(0).setRandomCenters(38, 0.0)
 
 model.trainOn(trainingData)
-model.predictOn(testData).print()
+val outputDStream = model.predictOn(testData)
+outputDStream.print()
+outputDStream.foreachRDD(rdd => {
+  if (!rdd.isEmpty){
+    rdd.saveAsTextFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/output/predict-", rdd.id).mkString(""))
+  }
+})
 
 ssc.start()
-ssc.awaitTermination()
