@@ -22,14 +22,19 @@ outputDStream.foreachRDD(rdd => {
 
 ssc.start()
 
-/**
-  * This needs to be updated for a streaming context.
-  */
+def getDistances(inputDStream: DStream[String]) = {
+  inputDStream.forEachRDD(rdd => {
+    rdd.map(record => {
+      val buffer record.split(",").toBuffer.remove(1,3)
+      Vectors.dense(buffer.map(_._1.toDouble).toArray)
+    }
+  })
+}
+
 def distance(a: Vector, b: Vector) =
   math.sqrt(a.toArray.zip(b.toArray).map(p => p._1 - p._2).map(d => d*d).sum)
 
 def distToCentroid(data: RDD[Vector], model: StreamingKMeansModel) = {
-  /** @val clusters RDD[Int] Centroid indices for each record **/
   val clusters = data.map(record => (record, model.predict(record)))
-  val distances = clusters.map(tup => (tup._1, distance(tup._1, model.clusterCenters(tup._2))))
+  clusters.map(tup => (tup._1, distance(tup._1, model.clusterCenters(tup._2))))
 }

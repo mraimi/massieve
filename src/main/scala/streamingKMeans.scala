@@ -52,34 +52,52 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 object StreamingKMeansExample {
 
   def main(args: Array[String]) {
-    if (args.length != 5) {
-      System.err.println(
-        "Usage: StreamingKMeansExample " +
-          "<trainingDir> <testDir> <batchDuration> <numClusters> <numDimensions>")
-      System.exit(1)
-    }
 
-    // $example on$
-    val conf = new SparkConf().setAppName("StreamingKMeansExample")
-    val ssc = new StreamingContext(conf, Seconds(args(2).toLong))
-
-    val trainingData = ssc.textFileStream(args(0)).map(Vectors.parse)
-
-    // Get training data into appropriate form
-
-    val testData = ssc.textFileStream(args(1)).map(LabeledPoint.parse)
+    val trainingData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/train/").map(Vectors.parse)
+    val testData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/test/").map(LabeledPoint.parse)
 
     val model = new StreamingKMeans()
-      .setK(args(3).toInt)
-      .setDecayFactor(1.0)
-      .setRandomCenters(args(4).toInt, 0.0)
+      .setK(100)
+      .setDecayFactor(0.0)
+      .setRandomCenters(38)
 
     model.trainOn(trainingData)
-    model.predictOnValues(testData.map(lp => (lp.label, lp.features))).print()
+    val outputDStream = model.predictOn(testData)
+    outputDStream.print()
+    outputDStream.foreachRDD(rdd => {
+      val distRdd = distToCentroid(rdd, model)
+      
+      if (!rdd.isEmpty){
+        /** Write back to the model for updates */
+        rdd.saveAsTextFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/output/predict-", rdd.id).mkString(""))
+      }
+
+      if (!distRdd.isEmpty){
+        /** Write back to the model for updates */
+        rdd.saveAsTextFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/output/distance-", rdd.id).mkString(""))
+      }
+    })
 
     ssc.start()
     ssc.awaitTermination()
-    // $example off$
+  }
+
+  def getDistances(inputDStream: DStream[String]) = {
+    inputDStream.forEachRDD(rdd => {
+      val vectorizedRdd = rdd.map(record => {
+        val buffer record.split(",").toBuffer.remove(1,3)
+        Vectors.dense(buffer.map(_._1.toDouble).toArray)
+      })
+    })
+  }
+
+  def distance(a: Vector, b: Vector) =
+    math.sqrt(a.toArray.zip(b.toArray).map(p => p._1 - p._2).map(d => d*d).sum)
+
+  def distToCentroid(data: RDD[Vector], model: StreamingKMeansModel) = {
+    /** @val clusters RDD[Int] Centroid indices for each record **/
+    val clusters = data.map(record => (record, model.predict(record)))
+    clusters.map(tup => (tup._1, distance(tup._1, model.clusterCenters(tup._2))))
   }
 }
 // scalastyle:on println
