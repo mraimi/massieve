@@ -14,6 +14,15 @@ def distToCentroid(data: RDD[Vector], model: StreamingKMeansModel) = {
   clusters.map(tup => (tup._1, distance(tup._1, model.clusterCenters(tup._2))))
 }
 
+def getThresholds(sc: SparkContext, std_dev_multiplier: Double) = {
+  val thresh = sc.textFile("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/threshold")
+  val tups = thresh.map(line => {
+    val spl = line.split(",")
+    val dub = spl.map(_.toDouble)
+    (dub(0), dub(1)+std_dev_multiplier*dub(2))
+  }).collectAsMap
+}
+
 val ssc = new StreamingContext(sc, Seconds(5))
 
 val trainingData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/train/").map(Vectors.parse)
@@ -24,18 +33,20 @@ val model = new StreamingKMeans().setK(100).setDecayFactor(0).setRandomCenters(3
 model.trainOn(trainingData)
 testData.foreachRDD(rdd => {
   val distRdd = distToCentroid(rdd, model.latestModel)
+  val results = distRdd.map(distanceTup => {
+    val idx = distanceTup._1
+    val dist = distanceTup._2
+    val thresholds = getThresholds(sc, 1.0)
+    if (dist > thresholds(idx)) "Normal" else "Anomalous"
+  })
+
   if (!distRdd.isEmpty){
     distRdd.saveAsObjectFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/output/distance-", distRdd.id).mkString(""))
+  }
+
+  if (!distRdd.isEmpty){
+    distRdd.saveAsObjectFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/output/traffic-results-", distRdd.id).mkString(""))
   }
 })
 
 ssc.start()
-
-def getDistances(inputDStream: DStream[String]) = {
-  inputDStream.forEachRDD(rdd => {
-    rdd.map(record => {
-      val buffer record.split(",").toBuffer.remove(1,3)
-      Vectors.dense(buffer.map(_._1.toDouble).toArray)
-    }
-  })
-}
