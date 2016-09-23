@@ -1,4 +1,5 @@
 import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.mllib.clustering.StreamingKMeans
 import org.apache.spark.mllib.clustering.StreamingKMeansModel
@@ -44,8 +45,8 @@ testData.foreachRDD(rdd => {
     distRdd.saveAsObjectFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/output/distance-", distRdd.id).mkString(""))
   }
 
-  if (!distRdd.isEmpty){
-    distRdd.saveAsObjectFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/output/traffic-results-", distRdd.id).mkString(""))
+  if (!results.isEmpty){
+    results.saveAsObjectFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/output/traffic-results-", distRdd.id).mkString(""))
   }
 })
 
