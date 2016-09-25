@@ -17,7 +17,7 @@ def distToCentroid(data: RDD[Vector], model: StreamingKMeansModel) = {
 }
 
 def getThresholds(sc: SparkContext, std_dev_multiplier: Double) = {
-  val thresh = sc.textFile("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/threshold")
+  val thresh = sc.textFile("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/stats")
   thresh.map(line => {
     val spl = line.split(",")
     val dub = spl.map(_.toDouble)

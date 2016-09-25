@@ -11,7 +11,7 @@ val results = red.map(tup => {
   val exp2 = tup._2.map(num => {
     Math.pow(num-mean,2)
   }).sum
-  (tup._1, mean, Math.sqrt(exp2/tup._2.length))
+  List(tup._1, mean, Math.sqrt(exp2/tup._2.length)).mkString(",")
 })
 
 results.saveAsTextFile("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/stats")
