@@ -7,14 +7,11 @@ val parsed = data.map(line => {
 
 val red = parsed.reduceByKey((x,y) => x ++ y)
 val results = red.map(tup => {
-  val count = tup._2.length
-  val mean = tup._2.sum / count
-  val devs = tup._2.map(score => (score - mean) * (score - mean))
-  val stddev = Math.sqrt(devs.sum / count)
-  (tup._1, mean, stddev)
+  val mean = tup._2.sum / tup._2.length
+  val exp2 = tup._2.map(num => {
+    Math.pow(num-mean,2)
+  }).sum
+  (tup._1, mean, Math.sqrt(exp2/tup._2.length))
 })
 
 results.saveAsTextFile("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/stats")
-
-//val mapVal = parsed.mapValues(x => (x,1))
-//val cts = mapVal2.reduceByKey((x,y) => (x._1+y._1, x._2+y._2)).map(tup => List().mkString(","))
