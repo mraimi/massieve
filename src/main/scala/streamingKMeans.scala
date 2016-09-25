@@ -39,7 +39,8 @@ object StreamingKMeansExample {
 
     val sparkConf = new SparkConf().setAppName("kmeans")
     val ssc = new StreamingContext(sparkConf, Seconds(5))
-    val thresholds = getThresholds(scc.sparkContext)
+    val sc = scc.sparkContext
+    val thresholds = getThresholds(sc, 1.0)
 
     val trainingData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/train/").map(Vectors.parse)
     val testData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/test/").map(Vectors.parse)
