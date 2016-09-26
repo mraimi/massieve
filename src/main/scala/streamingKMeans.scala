@@ -19,6 +19,7 @@ object StreamingKMeansExample {
 //  }
 
   def distance(a: Vector, b: Vector) =
+  def distance(a: Vector, b: Vector) =
     math.sqrt(a.toArray.zip(b.toArray).map(p => p._1 - p._2).map(d => d*d).sum)
 
   /**
@@ -41,7 +42,7 @@ object StreamingKMeansExample {
 
     val sparkConf = new SparkConf().setAppName("kmeans")
     val ssc = new StreamingContext(sparkConf, Seconds(5))
-    val sc = scc.sparkContext
+    val sc = ssc.sparkContext
 
     val trainingData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/train/").map(Vectors.parse)
     val testData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/test/").map(Vectors.parse)
