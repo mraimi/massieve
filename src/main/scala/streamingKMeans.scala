@@ -19,7 +19,6 @@ object StreamingKMeansExample {
 //  }
 
   def distance(a: Vector, b: Vector) =
-  def distance(a: Vector, b: Vector) =
     math.sqrt(a.toArray.zip(b.toArray).map(p => p._1 - p._2).map(d => d*d).sum)
 
   /**
