@@ -8,7 +8,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.sql._
 import java.io._
 import org.apache.spark.mllib.clustering.StreamingKMeans
-import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
