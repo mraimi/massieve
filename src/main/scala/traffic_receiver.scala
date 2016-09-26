@@ -38,27 +38,20 @@ object TrafficDataStreaming {
   def main(args: Array[String]) {
     
     val df = DistanceFunctions
-    val brokers = "ec2-23-22-195-205.compute-1.amazonaws.com:9092"
-    val topics = "traffic_data"
-    val topicsSet = topics.split(",").toSet
+//    val brokers = "ec2-23-22-195-205.compute-1.amazonaws.com:9092"
+//    val topics = "traffic_data"
+//    val topicsSet = topics.split(",").toSet
     val sparkConf = new SparkConf().setAppName("traffic_data")
     val ssc = new StreamingContext(sparkConf, Seconds(30))
     val sc = ssc.sparkContext
     val thresholds = sc.broadcast(df.getThresholds(sc, 1.0))
-
-    val kafkaParams = Map[String, String]("metadata.broker.list" -> brokers)
-    val inputDStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
-
-    val sparkConf = new SparkConf().setAppName("kmeans")
-    val ssc = new StreamingContext(sparkConf, Seconds(5))
-    val sc = ssc.sparkContext
-
+//    val kafkaParams = Map[String, String]("metadata.broker.list" -> brokers)
+//    val inputDStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
     val trainingData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/train/").map(Vectors.parse)
     val testData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/test/").map(Vectors.parse)
     val statsTextFile = sc.textFile("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/stats")
     val thresholds = df.getThresholds(statsTextFile, 1.0)
     val bcThresh = sc.broadcast(thresholds)
-
     val model = new StreamingKMeans().setK(100).setDecayFactor(0.0).setRandomCenters(38, 0.0)
 
     model.trainOn(trainingData)
