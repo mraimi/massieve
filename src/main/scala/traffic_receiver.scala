@@ -19,12 +19,12 @@ case object DistanceFunctions extends Serializable {
   /**
     * @return Rdd[(Double, Double)]
     */
-  def df.distToCentroid(data: RDD[Vector], model: StreamingKMeansModel) = {
+  def distToCentroid(data: RDD[Vector], model: StreamingKMeansModel) = {
     val clusters = data.map(record => (record, model.predict(record)))
     clusters.map(tup => (tup._2, distance(tup._1, model.clusterCenters(tup._2))))
   }
 
-  def df.getThresholds(stats: RDD[String], std_dev_multiplier: Double) = {
+  def getThresholds(stats: RDD[String], std_dev_multiplier: Double) = {
     stats.map(line => {
       val spl = line.split(",")
       val dub = spl.map(_.toDouble)
