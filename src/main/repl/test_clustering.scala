@@ -1,3 +1,5 @@
+import java.io.Serializable
+
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.streaming.StreamingContext
@@ -8,7 +10,7 @@ import org.apache.spark.mllib.linalg._
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
-case object DistanceFunctions {
+case object DistanceFunctions extends Serializable {
   def distance(a: Vector, b: Vector) =
     math.sqrt(a.toArray.zip(b.toArray).map(p => p._1 - p._2).map(d => d*d).sum)
 
