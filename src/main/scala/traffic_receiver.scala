@@ -61,7 +61,7 @@ object TrafficDataStreaming {
       val results = distRdd.map(distanceTup => {
         val idx = distanceTup._1
         val dist = distanceTup._2
-        if (dist > bcThresh.value(idx)) "Normal" else "Anomalous"
+        if (dist > bcThresh.value(idx.toDouble)) "Normal" else "Anomalous"
       })
 
       if (!distRdd.isEmpty){
