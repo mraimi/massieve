@@ -9,15 +9,6 @@ import scala.collection.Map
 
 object StreamingKMeansExample {
 
-//  def getDistances(inputDStream: DStream[String]) = {
-//    inputDStream.forEachRDD(rdd => {
-//      val vectorizedRdd = rdd.map(record => {
-//        val buffer record.split(",").toBuffer.remove(1,3)
-//        Vectors.dense(buffer.map(_._1.toDouble).toArray)
-//      })
-//    })
-//  }
-
   def distance(a: Vector, b: Vector) =
     math.sqrt(a.toArray.zip(b.toArray).map(p => p._1 - p._2).map(d => d*d).sum)
 
