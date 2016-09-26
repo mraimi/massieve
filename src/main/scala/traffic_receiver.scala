@@ -44,7 +44,6 @@ object TrafficDataStreaming {
     val sparkConf = new SparkConf().setAppName("traffic_data")
     val ssc = new StreamingContext(sparkConf, Seconds(30))
     val sc = ssc.sparkContext
-    val thresholds = sc.broadcast(df.getThresholds(sc, 1.0))
 //    val kafkaParams = Map[String, String]("metadata.broker.list" -> brokers)
 //    val inputDStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
     val trainingData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/train/").map(Vectors.parse)
