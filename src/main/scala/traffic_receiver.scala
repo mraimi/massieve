@@ -21,7 +21,7 @@ object TrafficDataStreaming {
 
     val sparkConf = new SparkConf().setAppName("traffic_data")
     val ssc = new StreamingContext(sparkConf, Seconds(30))
-    val sc = scc.sparkContext
+    val sc = ssc.sparkContext
     val thresholds = sc.broadcast(getThresholds(sc, 1.0))
 
     val kafkaParams = Map[String, String]("metadata.broker.list" -> brokers)
