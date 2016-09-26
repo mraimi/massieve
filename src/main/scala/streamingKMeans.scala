@@ -4,7 +4,7 @@ import org.apache.spark.mllib.clustering.StreamingKMeans
 import org.apache.spark.mllib.clustering.StreamingKMeansModel
 import org.apache.spark.mllib.linalg._
 import org.apache.spark.mllib.regression.LabeledPoint
-import org.apache.spark.streaming.{Seconds, Streaming Context}
+import org.apache.spark.streaming.{Seconds, StreamingContext}
 import scala.collection.Map
 
 object StreamingKMeansExample {
