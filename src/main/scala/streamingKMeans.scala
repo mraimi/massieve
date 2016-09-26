@@ -9,26 +9,28 @@ import scala.collection.Map
 
 object StreamingKMeansExample {
 
-  def getDistances(inputDStream: DStream[String]) = {
-    inputDStream.forEachRDD(rdd => {
-      val vectorizedRdd = rdd.map(record => {
-        val buffer record.split(",").toBuffer.remove(1,3)
-        Vectors.dense(buffer.map(_._1.toDouble).toArray)
-      })
-    })
-  }
+//  def getDistances(inputDStream: DStream[String]) = {
+//    inputDStream.forEachRDD(rdd => {
+//      val vectorizedRdd = rdd.map(record => {
+//        val buffer record.split(",").toBuffer.remove(1,3)
+//        Vectors.dense(buffer.map(_._1.toDouble).toArray)
+//      })
+//    })
+//  }
 
   def distance(a: Vector, b: Vector) =
     math.sqrt(a.toArray.zip(b.toArray).map(p => p._1 - p._2).map(d => d*d).sum)
 
+  /**
+    * @return Rdd[(Double, Double)]
+    */
   def distToCentroid(data: RDD[Vector], model: StreamingKMeansModel) = {
     val clusters = data.map(record => (record, model.predict(record)))
-    clusters.map(tup => (tup._1, distance(tup._1, model.clusterCenters(tup._2))))
+    clusters.map(tup => (tup._2, distance(tup._1, model.clusterCenters(tup._2))))
   }
 
-  def getThresholds(sc: SparkContext, std_dev_multiplier: Double) = {
-    val thresh = sc.textFile("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/threshold")
-    val tups = thresh.map(line => {
+  def getThresholds(stats: RDD[String], std_dev_multiplier: Double) = {
+    stats.map(line => {
       val spl = line.split(",")
       val dub = spl.map(_.toDouble)
       (dub(0), dub(1)+std_dev_multiplier*dub(2))
