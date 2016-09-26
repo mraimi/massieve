@@ -40,26 +40,32 @@ object StreamingKMeansExample {
     val sparkConf = new SparkConf().setAppName("kmeans")
     val ssc = new StreamingContext(sparkConf, Seconds(5))
     val sc = scc.sparkContext
-    val thresholds = getThresholds(sc, 1.0)
 
     val trainingData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/train/").map(Vectors.parse)
     val testData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/test/").map(Vectors.parse)
+    val statsTextFile = sc.textFile("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/stats")
+    val thresholds = getThresholds(statsTextFile, 1.0)
+    val bcThresh = sc.broadcast(thresholds)
 
     val model = new StreamingKMeans().setK(100).setDecayFactor(0.0).setRandomCenters(38, 0.0)
 
     model.trainOn(trainingData)
+    val latest = sc.broadcast(model.latestModel)
+
     testData.foreachRDD(rdd => {
-      val distRdd = distToCentroid(rdd, model)
+      val distRdd = distToCentroid(rdd, latest.value)
       val results = distRdd.map(distanceTup => {
         val idx = distanceTup._1
         val dist = distanceTup._2
-
-
+        if (dist > bcThresh.value(idx)) "Normal" else "Anomalous"
       })
 
       if (!distRdd.isEmpty){
-        /** Write back to the model for updates */
-        rdd.saveAsTextFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/output/distance-", rdd.id).mkString(""))
+        distRdd.saveAsTextFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/output/distance-", distRdd.id).mkString(""))
+      }
+
+      if (!results.isEmpty){
+        results.saveAsTextFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/output/traffic-results-", distRdd.id).mkString(""))
       }
     })
 
