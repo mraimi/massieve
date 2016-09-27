@@ -1,85 +1,68 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+import org.apache.spark.SparkConf
+import org.apache.spark.rdd.RDD
+import org.apache.spark.mllib.clustering.StreamingKMeans
+import org.apache.spark.mllib.clustering.StreamingKMeansModel
+import org.apache.spark.mllib.linalg._
+import org.apache.spark.mllib.regression.LabeledPoint
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import scala.collection.Map
 
-// scalastyle:off println
+object StreamingKMeansExample {
 
-//import org.apache.spark.SparkConf
-//// $example on$
-//import org.apache.spark.mllib.clustering.StreamingKMeans
-//import org.apache.spark.mllib.linalg.Vectors
-//import org.apache.spark.mllib.regression.LabeledPoint
-//import org.apache.spark.streaming.{Seconds, StreamingContext}
-// $example off$
+  def distance(a: Vector, b: Vector) =
+    math.sqrt(a.toArray.zip(b.toArray).map(p => p._1 - p._2).map(d => d*d).sum)
 
-/**
-  * Estimate clusters on one stream of data and make predictions
-  * on another stream, where the data streams arrive as text files
-  * into two different directories.
-  *
-  * The rows of the training text files must be vector data in the form
-  * `[x1,x2,x3,...,xn]`
-  * Where n is the number of dimensions.
-  *
-  * The rows of the test text files must be labeled data in the form
-  * `(y,[x1,x2,x3,...,xn])`
-  * Where y is some identifier. n must be the same for train and test.
-  *
-  * Usage:
-  *   StreamingKMeansExample <trainingDir> <testDir> <batchDuration> <numClusters> <numDimensions>
-  *
-  * To run on your local machine using the two directories `trainingDir` and `testDir`,
-  * with updates every 5 seconds, 2 dimensions per data point, and 3 clusters, call:
-  *    $ bin/run-example mllib.StreamingKMeansExample trainingDir testDir 5 3 2
-  *
-  * As you add text files to `trainingDir` the clusters will continuously update.
-  * Anytime you add text files to `testDir`, you'll see predicted labels using the current model.
-  *
-  */
-//object StreamingKMeansExample {
-//
-//  def main(args: Array[String]) {
-//    if (args.length != 5) {
-//      System.err.println(
-//        "Usage: StreamingKMeansExample " +
-//          "<trainingDir> <testDir> <batchDuration> <numClusters> <numDimensions>")
-//      System.exit(1)
-//    }
-//
-//    // $example on$
-//    val conf = new SparkConf().setAppName("StreamingKMeansExample")
-//    val ssc = new StreamingContext(conf, Seconds(args(2).toLong))
-//
-//    val trainingData = ssc.textFileStream(args(0)).map(Vectors.parse)
-//
-//    // Get training data into appropriate form
-//
-//    val testData = ssc.textFileStream(args(1)).map(LabeledPoint.parse)
-//
-//    val model = new StreamingKMeans()
-//      .setK(args(3).toInt)
-//      .setDecayFactor(1.0)
-//      .setRandomCenters(args(4).toInt, 0.0)
-//
-//    model.trainOn(trainingData)
-//    model.predictOnValues(testData.map(lp => (lp.label, lp.features))).print()
-//
-//    ssc.start()
-//    ssc.awaitTermination()
-//    // $example off$
-//  }
-//}
-// scalastyle:on println
+  /**
+    * @return Rdd[(Double, Double)]
+    */
+  def distToCentroid(data: RDD[Vector], model: StreamingKMeansModel) = {
+    val clusters = data.map(record => (record, model.predict(record)))
+    clusters.map(tup => (tup._2, distance(tup._1, model.clusterCenters(tup._2))))
+  }
+
+  def getThresholds(stats: RDD[String], std_dev_multiplier: Double) = {
+    stats.map(line => {
+      val spl = line.split(",")
+      val dub = spl.map(_.toDouble)
+      (dub(0), dub(1)+std_dev_multiplier*dub(2))
+    }).collectAsMap
+  }
+
+  def main(args: Array[String]) {
+
+    val sparkConf = new SparkConf().setAppName("kmeans")
+    val ssc = new StreamingContext(sparkConf, Seconds(5))
+    val sc = ssc.sparkContext
+
+    val trainingData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/train/").map(Vectors.parse)
+    val testData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/test/").map(Vectors.parse)
+    val statsTextFile = sc.textFile("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/stats")
+    val thresholds = getThresholds(statsTextFile, 1.0)
+    val bcThresh = sc.broadcast(thresholds)
+
+    val model = new StreamingKMeans().setK(100).setDecayFactor(0.0).setRandomCenters(38, 0.0)
+
+    model.trainOn(trainingData)
+    val latest = sc.broadcast(model.latestModel)
+
+    testData.foreachRDD(rdd => {
+      val distRdd = distToCentroid(rdd, latest.value)
+      val results = distRdd.map(distanceTup => {
+        val idx = distanceTup._1
+        val dist = distanceTup._2
+        if (bcThresh.value.contains(idx.toDouble) && dist > bcThresh.value(idx.toDouble)) "Normal" else "Anomalous"
+      })
+
+      if (!distRdd.isEmpty){
+        distRdd.saveAsTextFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/output/distance-", distRdd.id).mkString(""))
+      }
+
+      if (!results.isEmpty){
+        results.saveAsTextFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/output/traffic-results-", distRdd.id).mkString(""))
+      }
+    })
+
+    ssc.start()
+    ssc.awaitTermination()
+  }
+}
