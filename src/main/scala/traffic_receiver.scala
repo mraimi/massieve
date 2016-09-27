@@ -21,14 +21,13 @@ case object DistanceFunctions extends Serializable {
   def distToCentroid(data: RDD[String], model: StreamingKMeansModel) = {
     /** RDD[(Vector[Double] record, int cluster_index)] */
     val clusters = data.map(record => {
-      records.map( x => {
         val buf = x.split(',').toBuffer
         val removed = (buf(1), buf(2))
         buf.remove(1,3)
         val record = Vectors.dense(buf.toArray.map(_.toDouble))
         (record, model.predict(record), removed)
       })
-    })
+    }
     clusters.map(tup => (tup._2, distance(tup._1, model.clusterCenters(tup._2), tup._3)))
   }
 
