@@ -52,7 +52,7 @@ object TrafficDataStreaming {
     val ssc = new StreamingContext(sparkConf, Seconds(30))
     val sc = ssc.sparkContext
     val kafkaParams = Map[String, String]("metadata.broker.list" -> brokers)
-    val testStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
+    val inputStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
     val trainingData = ssc.textFileStream("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/train/").map(Vectors.parse)
     val statsTextFile = sc.textFile("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/stats")
     val thresholds = df.getThresholds(statsTextFile, 2.0)
@@ -62,7 +62,7 @@ object TrafficDataStreaming {
     model.trainOn(trainingData)
     val latest = sc.broadcast(model.latestModel)
 
-    testData.foreachRDD(rdd => {
+    inputStream.foreachRDD(rdd => {
       val distRdd = df.distToCentroid(rdd, latest.value)
       val results = distRdd.map(distanceTup => {
         val idx = distanceTup._1
@@ -73,6 +73,8 @@ object TrafficDataStreaming {
       if (!results.isEmpty){
         results.saveAsTextFile(List("hdfs://ec2-23-22-195-205.compute-1.amazonaws.com:9000/output/traffic-results-", distRdd.id).mkString(""))
       }
+
+      /** Write back to model */
     })
 
     ssc.start()
