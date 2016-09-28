@@ -24,7 +24,8 @@ case object DistanceFunctions extends Serializable {
         val buf = record.split(',').toBuffer
         val removed = (buf(1), buf(2))
         buf.remove(1,3)
-        val record = Vectors.dense(buf.toArray.map(_.toDouble))
+        val dubs = buf.toArray.map(_.toDouble)
+        val record = Vectors.dense(dubs)
         (record, model.predict(record), removed)
     })
     clusters.map(tup => (tup._2, distance(tup._1, model.clusterCenters(tup._2), tup._3)))
