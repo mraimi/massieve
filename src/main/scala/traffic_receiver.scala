@@ -24,7 +24,7 @@ case object DistanceFunctions extends Serializable {
         val spl = record.split(',')
         val buf = spl.toBuffer
         val removed = (buf(1), buf(2))
-        buf.remove(1,3)
+        val cruft = buf.remove(1,3)
         val dubs = buf.toArray.map(_.toDouble)
         val record = Vectors.dense(dubs)
         (record, model.predict(record), removed)
