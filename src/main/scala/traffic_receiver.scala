@@ -20,16 +20,15 @@ case object DistanceFunctions extends Serializable {
 
   def distToCentroid(data: RDD[String], model: StreamingKMeansModel) = {
     /** RDD[(Vector[Double] record, int cluster_index)] */
-    val clusters = data.map((record: String) => {
-        val spl = record.split(',')
-        val buf = spl.toBuffer
+    val clusters = data.map(rec => {
+        val buf = rec.split(',').toBuffer
         val removed = (buf(1), buf(2))
         val cruft = buf.remove(1,3)
         val dubs = buf.toArray.map(_.toDouble)
         val record = Vectors.dense(dubs)
         (record, model.predict(record), removed)
     })
-    clusters.map(tup => (tup._2, distance(tup._1, model.clusterCenters(tup._2), tup._3)))
+    clusters.map(tup => (tup._2, distance(tup._1, model.clusterCenters(tup._2)), tup._3))
   }
 
   def getThresholds(stats: RDD[String], std_dev_multiplier: Double) = {
@@ -63,7 +62,7 @@ object TrafficDataStreaming {
     val latest = sc.broadcast(model.latestModel)
 
     inputStream.foreachRDD(rdd => {
-      val distRdd = df.distToCentroid(rdd, latest.value)
+      val distRdd = df.distToCentroid(rdd.map(_._2), latest.value)
       val results = distRdd.map(distanceTup => {
         val idx = distanceTup._1
         val dist = distanceTup._2
