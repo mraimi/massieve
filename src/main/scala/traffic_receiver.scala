@@ -15,6 +15,7 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 import com.redis._
 import com.typesafe.config.ConfigFactory
 
+
 /** Object for distance mesaurements and cluster membership */
 case object DistanceFunctions extends Serializable {
 
@@ -44,7 +45,7 @@ case object DistanceFunctions extends Serializable {
 
 /** Serializable singleton RedisClient to be distributed */
 object RedisConnection extends Serializable {
-  lazy val client: RedisClient = new RedisClient("ec2-52-54-82-137.compute-1.amazonaws.com", 6379, Option(""))
+  lazy val client: RedisClient = new RedisClient("ec2-52-54-82-137.compute-1.amazonaws.com", 6379, 0, Option(""))
 }
 
 object TrafficDataStreaming {
