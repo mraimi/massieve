@@ -15,6 +15,7 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 import com.redis._
 import com.typesafe.config.ConfigFactory
 
+/** Object for distance mesaurements and cluster membership */
 case object DistanceFunctions extends Serializable {
 
   def distance(a: Vector, b: Vector) =
@@ -41,6 +42,7 @@ case object DistanceFunctions extends Serializable {
   }
 }
 
+/** Serializable singleton RedisClient to be distributed */
 object RedisConnection extends Serializable {
   lazy val client: RedisClient = new RedisClient("ec2-52-54-82-137.compute-1.amazonaws.com", 6379, Option(""))
 }
@@ -67,6 +69,7 @@ object TrafficDataStreaming {
     model.trainOn(trainingData)
     val latest = sc.broadcast(model.latestModel)
 
+    /** Iterate over new traffic records */
     inputStream.foreachRDD(rdd => {
       val distRdd = df.distToCentroid(rdd.map(_._2), latest.value)
       val results = distRdd.map(distanceTup => {
@@ -82,7 +85,9 @@ object TrafficDataStreaming {
         }
 
         /** Publish the result to Redis **/
-        RedisConnection.client.publish(List(distanceTup._3._1, distanceTup._3._2).mkString(""),List("","",result).mkString(""))
+        val channel = List(distanceTup._3._1, distanceTup._3._2).mkString(".")
+        val message = List(distanceTup._3._1, distanceTup._3._2, result).mkString(",")
+        RedisConnection.client.publish(channel, message)
         (result, distanceTup._3)
       })
 
