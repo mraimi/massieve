@@ -6,6 +6,8 @@ import sys
 import random
 import datetime
 
+# This is a script to generate data and send it to an S3 bucket
+# Data from the 1999 KDD dataset is randomly perturbed to give more varied data
 
 def log(logfile, msg):
     logfile.write("[" + str(datetime.datetime.utcnow()) + "] " + msg)
