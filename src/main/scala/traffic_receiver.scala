@@ -63,7 +63,7 @@ object TrafficDataStreaming {
     val inputStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
     val trainingData = ssc.textFileStream(baseUrl + ":9000/train/").map(Vectors.parse)
     val statsTextFile = sc.textFile(baseUrl + ":9000/stats")
-    val thresholds = df.getThresholds(statsTextFile, 2.0)
+    val thresholds = df.getThresholds(statsTextFile, 0.0)
     val bcThresh = sc.broadcast(thresholds)
     val model = new StreamingKMeans().setK(100).setDecayFactor(0.0).setRandomCenters(38, 0.0)
 
