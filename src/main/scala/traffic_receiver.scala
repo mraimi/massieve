@@ -45,7 +45,7 @@ case object DistanceFunctions extends Serializable {
 
 /** Serializable singleton RedisClient to be distributed */
 object RedisConnection extends Serializable {
-  lazy val client: RedisClient = new RedisClient("ec2-52-54-82-137.compute-1.amazonaws.com", 6379, 0, Option(""))
+  lazy val client: RedisClient = new RedisClient("ec2-52-54-82-137.compute-1.amazonaws.com", 6379, 0, Option("BFHW6zDv3g7kuxDxRXV7K8Y2pdyfR7kw"))
 }
 
 object TrafficDataStreaming {
