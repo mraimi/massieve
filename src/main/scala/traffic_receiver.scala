@@ -52,7 +52,7 @@ object TrafficDataStreaming {
   def main(args: Array[String]) {
     
     val df = DistanceFunctions
-    val baseUrl = "ec2-23-22-195-205.compute-1.amazonaws.com"
+    val baseUrl = "hdfs://ec2-23-22-195-205.compute-1.amazonaws.com"
     val brokers = ":9092"
     val topics = "traffic_data"
     val topicsSet = topics.split(",").toSet
