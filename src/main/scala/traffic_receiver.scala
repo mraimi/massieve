@@ -46,7 +46,7 @@ case object DistanceFunctions extends Serializable {
   }
 
   /**
-    * Reads in initial thresholds built on historical data
+    * Reads initial thresholds built on historical data
     */
   def getThresholds(stats: RDD[String], std_dev_multiplier: Double) = {
     stats.map(line => {
@@ -94,7 +94,7 @@ object TrafficDataStreaming {
         val exceedsThreshold = dist > bcThresh.value(clusterIdx.toDouble)
 
         /** Check if distance for current record exceeds the threshold */
-        var result = "anomalous" if (present && exceedsThreshold) else result = "normal"
+        val result = if (present && exceedsThreshold) "anomalous" else "normal";
 
         /** Publish the result to Redis **/
         val channel = List(distanceTup._3._1, distanceTup._3._2).mkString(".")
