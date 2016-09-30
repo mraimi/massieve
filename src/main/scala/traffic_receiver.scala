@@ -80,9 +80,9 @@ object TrafficDataStreaming {
 
         /** Check if distance for current record exceeds the threshold */
         if (bcThresh.value.contains(idx.toDouble) && dist > bcThresh.value(idx.toDouble)) {
-          result = "Anomalous"
+          result = "anomalous"
         }  else {
-          result = "Normal"
+          result = "normal"
         }
 
         /** Publish the result to Redis **/
