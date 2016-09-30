@@ -5,8 +5,8 @@ in real-time at massive scale.
 
 ## The Massieve pipeline
 - Kafka-Python produces traffic messages to Kafka
-- Spark Stremaing receives message and passes them to MLlib
-- MLlib writes back to the model and publishes classified records to Redis
+- Spark Stremaing receives Kafka messages and passes them to MLlib
+- MLlib writes back to the model and publishes newly classified records to Redis
 - Flask front end dynamically subscribes to Redis channels
 
 

@@ -1,4 +1,6 @@
 #!/bin/bash
+
+#This script spawns multiple tmux sessions to create multiple produces threads
 IP_ADDR=$1
 NUM_SPAWNS=$2
 SESSION=$3
