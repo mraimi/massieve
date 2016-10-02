@@ -16,6 +16,7 @@ class Producer():
         topic = client.topics["traffic_data4"]
         random.seed()
 
+        print "Starting..."
         with topic.get_producer() as producer:
             while True:
                 idx = random.randint(0, len(self.mem_data) - 1)
