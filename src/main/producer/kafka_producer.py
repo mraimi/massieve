@@ -17,9 +17,9 @@ class Producer(object):
             self.mem_data.append(record)
 
     def produce_msgs(self, source_symbol):
-	random.seed()
+        random.seed()
         while True:
-	    idx = random.randint(0, len(self.mem_data) - 1)
+            idx = random.randint(0, len(self.mem_data) - 1)
             str_fmt = "{}"
             message_content = str_fmt.format(self.mem_data[idx])
             self.producer.send_messages('traffic_data4', source_symbol, message_content)
