@@ -1,7 +1,6 @@
 #!/bin/bash
-IP_ADDR=$1
-NUM_SPAWNS=$2
-SESSION=$3
+NUM_SPAWNS=$1
+SESSION=$2
 tmux new-session -s $SESSION -n bash -d
 for ID in `seq 1 $NUM_SPAWNS`;
 do
