@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import sys
 import random
 from pykafka import KafkaClient
@@ -6,7 +7,7 @@ class Producer():
     daemon = True
 
     def __init__(self):
-        self.data_file = open('/home/ubuntu/opt/realtimeAnomalies/src/main/test/kddcup.testdata.unlabeled', 'r')
+        self.data_file = open('/home/ubuntu/dev/massieve/src/main/test/kddcup.testdata.unlabeled', 'r')
         self.mem_data = []
         for record in self.data_file:
             self.mem_data.append(record)
