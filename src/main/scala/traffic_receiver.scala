@@ -91,10 +91,10 @@ object TrafficDataStreaming {
         val clusterIdx = distanceTup._1
         val dist = distanceTup._2
         val present = bcThresh.value.contains(clusterIdx.toDouble)
-        val exceedsThreshold = dist > bcThresh.value(clusterIdx.toDouble)
+        val exceedsThreshold = present && dist > bcThresh.value(clusterIdx.toDouble)
 
         /** Check if distance for current record exceeds the threshold */
-        val result = if (present && exceedsThreshold) "anomalous" else "normal";
+        val result = if (exceedsThreshold) "anomalous" else "normal";
 
         /** Publish the result to Redis **/
         val channel = List(distanceTup._3._1, distanceTup._3._2).mkString(".")
