@@ -1,0 +1,5 @@
+The files in this folder are code snippets that were frequently
+used to debug Spark code in the REPL.
+
+The directory is prepended with a period as to be ignored
+at the compilation step.
