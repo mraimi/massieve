@@ -19,9 +19,20 @@ import com.typesafe.config.ConfigFactory
 /** Object for distance mesaurements and cluster membership */
 case object DistanceFunctions extends Serializable {
 
+  /**
+    * Standard implementation of Euclidian distance between
+    * two vectors of the same dimension
+    */
   def distance(a: Vector, b: Vector) =
     math.sqrt(a.toArray.zip(b.toArray).map(p => p._1 - p._2).map(d => d*d).sum)
 
+  /**
+    * Takes raw traffic records, strips non-numerical fields,
+    * and casts numbers to doubles. Returns records of the form:
+    * (Vector[Double], Double, (String, String, String)) representing
+    * the record, its distance from its assigned centroid, and
+    * a tuple of its connection and protocol.
+    */
   def distToCentroid(data: RDD[String], model: StreamingKMeansModel) = {
     val clusters = data.map(rec => {
         val buf = rec.split(',').toBuffer
@@ -34,6 +45,9 @@ case object DistanceFunctions extends Serializable {
     clusters.map(tup => (tup._2, distance(tup._1, model.clusterCenters(tup._2)), tup._3))
   }
 
+  /**
+    * Reads initial thresholds built on historical data
+    */
   def getThresholds(stats: RDD[String], std_dev_multiplier: Double) = {
     stats.map(line => {
       val spl = line.split(",")
@@ -74,16 +88,13 @@ object TrafficDataStreaming {
     inputStream.foreachRDD(rdd => {
       val distRdd = df.distToCentroid(rdd.map(_._2), latest.value)
       val results = distRdd.map(distanceTup => {
-        val idx = distanceTup._1
+        val clusterIdx = distanceTup._1
         val dist = distanceTup._2
-        var result = "Error"
+        val present = bcThresh.value.contains(clusterIdx.toDouble)
+        val exceedsThreshold = present && dist > bcThresh.value(clusterIdx.toDouble)
 
         /** Check if distance for current record exceeds the threshold */
-        if (bcThresh.value.contains(idx.toDouble) && dist > bcThresh.value(idx.toDouble)) {
-          result = "anomalous"
-        }  else {
-          result = "normal"
-        }
+        val result = if (exceedsThreshold) "anomalous" else "normal";
 
         /** Publish the result to Redis **/
         val channel = List(distanceTup._3._1, distanceTup._3._2).mkString(".")
@@ -102,6 +113,5 @@ object TrafficDataStreaming {
 
     ssc.start()
     ssc.awaitTermination()
-
   }
 }
