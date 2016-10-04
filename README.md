@@ -50,7 +50,7 @@ centroid for any given cluster.
 
 ## Filtering/Viewing Traffic
 
-From the [front end](www.massieve.co) users are able to "subscribe" to different types of
+From the front end (www.massieve.co) users are able to "subscribe" to different types of
 traffic by selecting connection type and protocol. For example,
 one could choose to see all incoming UDP traffic and whether each
 looks normal or anomalous. One could also see all TCP connections
