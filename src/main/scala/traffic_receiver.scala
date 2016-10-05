@@ -109,6 +109,10 @@ object TrafficDataStreaming {
       }
 
       /** Write back to model */
+      if (!rdd.isEmpty){
+        /** Write a copy to HDFS for cold storage */
+        rdd.saveAsTextFile(List(baseUrl + ":9000/train/to-train-", distRdd.id).mkString(""))
+      }
     })
 
     ssc.start()
