@@ -108,9 +108,9 @@ object TrafficDataStreaming {
         results.saveAsTextFile(List(baseUrl + ":9000/output/traffic-results-", distRdd.id).mkString(""))
       }
 
-      /** Write back to model */
+
       if (!rdd.isEmpty){
-        /** Write a copy to HDFS for cold storage */
+        /** Write back to model */
         rdd.saveAsTextFile(List(baseUrl + ":9000/train/to-train-", distRdd.id).mkString(""))
       }
     })
