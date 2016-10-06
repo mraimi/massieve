@@ -55,6 +55,20 @@ case object DistanceFunctions extends Serializable {
       (dub(0), dub(1)+std_dev_multiplier*dub(2))
     }).collectAsMap
   }
+
+  /**
+    * Strips non-numerics and writes back to HDFS to update model
+    */
+  def updateMode(baseUrl: String, data: RDD[String]) = {
+    val vects = data.map(rec => {
+      val buf = rec.split(',').toBuffer
+      buf.remove(1,3)
+      val dubs = buf.toArray.map(_.toDouble)
+      Vectors.dense(dubs)
+    })
+    vects.saveAsTextFile(List(baseUrl + ":9000/output/model-update-", data.id).mkString(""))
+  }
+
 }
 
 /** Serializable singleton RedisClient to be distributed */
@@ -110,8 +124,8 @@ object TrafficDataStreaming {
 
 
       if (!rdd.isEmpty){
-        /** Write back to model */
-        rdd.saveAsTextFile(List(baseUrl + ":9000/train/to-train-", distRdd.id).mkString(""))
+        /** Strip non-numerics and update model */
+        df.update_model(baseUrl, rdd)
       }
     })
 
