@@ -125,7 +125,7 @@ object TrafficDataStreaming {
 
       if (!rdd.isEmpty){
         /** Strip non-numerics and update model */
-        df.updateModel(baseUrl, rdd)
+        df.updateModel(baseUrl, rdd.map(_._2))
       }
     })
 
