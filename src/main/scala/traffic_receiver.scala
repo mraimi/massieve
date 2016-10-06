@@ -66,7 +66,7 @@ case object DistanceFunctions extends Serializable {
       val dubs = buf.toArray.map(_.toDouble)
       Vectors.dense(dubs)
     })
-    vects.saveAsTextFile(List(baseUrl + ":9000/output/model-update-", data.id).mkString(""))
+    vects.saveAsTextFile(List(baseUrl + ":9000/train/model-update-", data.id).mkString(""))
   }
 
 }
