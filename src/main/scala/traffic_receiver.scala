@@ -59,7 +59,7 @@ case object DistanceFunctions extends Serializable {
   /**
     * Strips non-numerics and writes back to HDFS to update model
     */
-  def updateMode(baseUrl: String, data: RDD[String]) = {
+  def updateModel(baseUrl: String, data: RDD[String]) = {
     val vects = data.map(rec => {
       val buf = rec.split(',').toBuffer
       buf.remove(1,3)
@@ -125,7 +125,7 @@ object TrafficDataStreaming {
 
       if (!rdd.isEmpty){
         /** Strip non-numerics and update model */
-        df.update_model(baseUrl, rdd)
+        df.updateModel(baseUrl, rdd)
       }
     })
 
